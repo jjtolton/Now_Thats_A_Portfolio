@@ -17,10 +17,8 @@ Created on Mon Jan 05 21:29:11 2015
     sum of the even-valued terms.
 """
 
-from numpy import array, vectorize
 from MyDevTools.MyDebug import timeIt
 from MyDevTools.MyPerformanceTools import memo
-from itertools import takewhile
 
 @memo
 def fib(n):
@@ -28,9 +26,10 @@ def fib(n):
 
 @timeIt
 def main():
-    stop, _sum, n = 4*10**6, 0, 0
-    while fib(n) <= stop: 
-        _sum += fib(n) if not fib(n) % 2 else 0
+    stop, _sum, n, term = 4*10**6, 0, 0, 0
+    while term <= stop:
+        term = fib(n)
+        _sum += term if not term % 2 else 0
         n += 1
     print _sum
     

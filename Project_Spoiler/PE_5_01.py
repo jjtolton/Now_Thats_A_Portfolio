@@ -5,17 +5,26 @@ Created on Wed Jan 07 21:30:47 2015
 @author: J
 """
 
-from numpy import array, argmax, vectorize
+from numpy import array, argmax, vectorize, amax
+from MyDevTools.MyDebug import timeIt
+from MyDevTools.MyMathTools import get_factors
 
+@timeIt
 def main():
-#    test()
-#    assert numpy.any(find_divisible(xrange(11)))
-#    print find_divisible(xrange(1,11))
-    pass
+    test()
+#    print find_divisible(xrange(1,20,4))
+#    vals = xrange(11,21)
+#    print find_divisible(vals)    
+#    assert is_divisible(19, xrange(11,15))
+    
+def test():
+    assert is_divisible(2520,xrange(1,11))
+    assert sorted(list(get_factors(20))),[1,2,4,5,10,20]
 
 def find_divisible(divisors):
-    start, stop = 5, 7  #to prevent infinite loop
-    test = vectorize(lambda x: is_divisible(x,divisors))
+    start, stop = 2, 7  #to prevent infinite loop
+#    test = vectorize(divisible(divisors))
+    test = vectorize(lambda x: is_divisible(x, divisors))
     for i in range(start, stop):
         test_arr = array(xrange(10**i))
         res = test_arr[test(test_arr)]
@@ -23,12 +32,31 @@ def find_divisible(divisors):
             return res
     return None
 
+
+def eliminate_redundant_common_factors(nums):
+    """
+    Eliminating redundancies:
+    
+    We know that 6 is a common multiple of 2,3 so anything that is common
+    to 6 is common to 2,3
+    
+    likewise anything that is common to 8 is also common to 2,4
+    
+    Therefore as we go through the list we can recursively eliminate any numbers
+    already on the list
+    """
+    largest = max(x)
+    
+    
+    
+
 def divisible(divisors):
-    div_all = vectorize(lambda x: argmax(x % array(divisors)))
+    div_all = vectorize(lambda x: amax(x % array(divisors)))
     is_0 = vectorize(lambda x: x == 0)
     return lambda x: is_0(div_all(x)).any()
     
-    
+def is_divisible(num, nums):
+    return not amax(num % array(nums))
     
 
 def test():

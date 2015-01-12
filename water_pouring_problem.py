@@ -333,8 +333,8 @@ def prettify_output(shortest_):
 def main():
 #    water_pouring_problem(0,0,14,5,6)
     start_vol_1, start_cap_1 = 0,9
-    start_vol_2, start_cap_2 = 0,6
-    goal = 5
+    start_vol_2, start_cap_2 = 0,5
+    goal = 6
     
     solution = water_pouring_problem(
                             start_vol_1,

@@ -31,7 +31,6 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
     
     
     def little_pour(vol):
-#        print vol
         assert isinstance(vol, dict)
         assert len(vol) == 2
         vol = dict(vol.items())
@@ -105,15 +104,9 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
         history, vol = None, None
         for k,v in successor.items():
             history, vol = k,v
-#            print history, vol
-        
-#        history = list(history)
+
         for action in actions:
-#            print history, vol
-#            print type([history])
-#            print type(history), type((action.__name__,))
             new_history = history + (action.__name__,)
-#            new_history = tuple([history]+[action.__name__])
             _successors[new_history] = action(vol)
         """
         example_successor = {
@@ -121,8 +114,7 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
             "history" :  {
                                 "big" : '<some_vol>',
                                 "little" : '<some_other_vol>'
-            
-            }
+                }
         }
         """
         assert isinstance(_successors, dict)
@@ -133,8 +125,7 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
                         "big" : 5,
                         "little" : 5
         }        
-        
-        
+                
         little_pour_result = {       
         
                     "big" : 9,
@@ -165,7 +156,6 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
         
                     "big" : 0,
                     "little" : 5
-    
         
         }
         
@@ -243,43 +233,27 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
         print "all tests okay"
         return True
 
-#    if not test():
-#        return False
     previous = {}
     paths = [successors({('start',):start_vol})]
-#    print paths
-#    print 'PATHS', paths
     
     def new_round(paths):
-#        """ path --> (history) : {volumes : values} """
-#                                """keys off length of history"""
-#                                """start with shortest path first"""
         paths = sorted(
                                     [path for path in paths],
                                     key = lambda path: len(path.keys()[0]),
                                     reverse = True
                                 )
-#        print "EXEC ORDER:", execution_order
         _new_paths = []
         for i in range(len(paths)):
             path = paths.pop()
 #            print path
             assert isinstance(path, dict)
             new_paths = successors(path)
-#            for new_path in new_paths:
-#                print new_path
             """new_path --> (history) : {sizes : volumes} """
             for history, vol in new_paths.items():
-#                if solution in vol:
-#                    return history, vol
                 if not previous.get(tuple(vol.values())):
                     previous[tuple(vol.values())] = history
                     _new_paths.append({history:vol})
     
-#            for path in paths:
-#                """
-#                   Example path: { "history" : "value" }     
-#                """                        
         return _new_paths
     
 
@@ -291,18 +265,15 @@ def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution
             for path in paths:
                 """path --> (history) : {volumes : values}"""
                 for history, vol in path.items():
-                    if solution in vol.values():
-              
+                    if solution in vol.values():              
                         return history, vol
-        return False
-    
+        return False    
     return find_path(paths, 1000)
     
 def prettify_output(shortest_):
     if shortest_ == False:
         print "No path found.  For more information," + \
                 "visit www.failblog.org"
-
     else:
         """shortest path --> (history) : {volumes : values}"""
         path = list(shortest_[0])
@@ -344,7 +315,7 @@ def main():
                             goal
     )
     
-    print solution
+    prettify_output(solution)
 #                            start_vol_1,
 #                            start_vol_2,
 #                            start_cap_1,

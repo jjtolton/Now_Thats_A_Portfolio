@@ -17,10 +17,46 @@ Combinatorial Optimization
         Dump 6
         Dump 9
 """
+
+
 from MyDevTools.MyDebug import trace, disabled, timeIt
-
 trace = disabled
+import doctest
+class Test:""">>> water_pouring_problem(82,53,171,37,8)
+(('start', 'fill_little', 'dump_little', 'big_pour', 'dump_little', 'big_pour'), {'big': 8, 'little': 37})
 
+>>> water_pouring_problem(0,0,4,9,5)
+(('start', 'fill_little', 'little_pour'), {'big': 4, 'little': 5})
+
+>>> water_pouring_problem(82,53,171,37,8)
+(('start', 'fill_little', 'dump_little', 'big_pour', 'dump_little', 'big_pour'), {'big': 8, 'little': 37})
+
+>>> water_pouring_problem(0,0,0,0,0)
+(('start', 'fill_little', 'fill_little'), {'big': 0, 'little': 0})
+
+>>> water_pouring_problem(0,0,9,6,5)
+False
+
+>>> water_pouring_problem(0,0,9,4,5)
+(('start', 'fill_little', 'dump_little', 'fill_big', 'big_pour'), {'big': 5, 'little': 4})
+    """
+print doctest.testmod()
+    
+def main():
+
+    start_vol_1, start_cap_1 = 0,9
+    start_vol_2, start_cap_2 = 0,5
+    goal = 6
+    
+    solution = water_pouring_problem(
+                            start_vol_1,
+                            start_vol_2,
+                            start_cap_1,
+                            start_cap_2,
+                            goal
+    )
+    
+    prettify_output(solution)
 
 def water_pouring_problem(big_start, little_start, big_vol, little_vol, solution):
     
@@ -298,51 +334,8 @@ def prettify_output(shortest_):
         
             
         
-    
-#@trace
-#@timeIt
-def main():
-#    water_pouring_problem(0,0,14,5,6)
-    start_vol_1, start_cap_1 = 0,9
-    start_vol_2, start_cap_2 = 0,5
-    goal = 6
-    
-    solution = water_pouring_problem(
-                            start_vol_1,
-                            start_vol_2,
-                            start_cap_1,
-                            start_cap_2,
-                            goal
-    )
-    
-    prettify_output(solution)
-#                            start_vol_1,
-#                            start_vol_2,
-#                            start_cap_1,
-#                            start_cap_2,
-#                            goal                            
-#    )
-    
+
+
 if __name__ == '__main__':
-    import doctest
-    class Test:""">>> water_pouring_problem(82,53,171,37,8)
-(('start', 'fill_little', 'dump_little', 'big_pour', 'dump_little', 'big_pour'), {'big': 8, 'little': 37})
-
->>> water_pouring_problem(0,0,4,9,5)
-(('start', 'fill_little', 'little_pour'), {'big': 4, 'little': 5})
-
->>> water_pouring_problem(82,53,171,37,8)
-(('start', 'fill_little', 'dump_little', 'big_pour', 'dump_little', 'big_pour'), {'big': 8, 'little': 37})
-
->>> water_pouring_problem(0,0,0,0,0)
-(('start', 'fill_little', 'fill_little'), {'big': 0, 'little': 0})
-
->>> water_pouring_problem(0,0,9,6,5)
-False
-
->>> water_pouring_problem(0,0,9,4,5)
-(('start', 'fill_little', 'dump_little', 'fill_big', 'big_pour'), {'big': 5, 'little': 4})
-    """
-    print doctest.testmod()
     main()
     

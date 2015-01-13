@@ -47,7 +47,7 @@ def test():
                   ]
 
     result = clean_items(test_item)
-    print result
+#    print result
     
 test()
 
@@ -80,32 +80,31 @@ def scrape_page(url):
     soup = get_soup(url)
     courses = [str(course) for course in soup.find_all('td')]
     segmented_courses = segment_courses(courses)
-#    print segmented_courses
     processed_courses = clean_list(segmented_courses)
     return processed_courses
     
 def segment_courses(courses):
-    pattern = 'valign="top">.*?(?=</td>)'
+    isolate_pattern = 'valign="top">.*?(?=</td>)'
     pattern1= '<br/>.*</div>'
     pattern2= 'valign="top">'
     pattern3 = '<br/>'
-    to_remove = pattern1,pattern2,pattern3
-    p = re.compile(pattern)
-    p1 = re.compile(pattern1)
-    s_courses = ' '.join(courses)
-#    print s_courses
+    gather_pattern = '[0-9]{5}.*?(?=[0-9]{5})'
     
+    to_remove = [re.compile(p) for p in (pattern1,pattern2,pattern3)]
+    p = re.compile(isolate_pattern)
+    s_courses = ' '.join(courses)
     new_courses = re.findall(p, s_courses)
     for p in to_remove:
         new_courses = [re.sub(p, '', course) for course in new_courses]
-#    new_courses = [re.sub(p1, '', course) for course in new_courses]
+    new_courses = re.findall(gather_pattern, ' '.join(new_courses))
     new_courses = [course.split(' ') for course in new_courses]
 #    print new_courses
     
     return new_courses
     
 def pretty_courses(courses):
-    print courses
+    for course in courses:
+        print course
         
     
 page = r'http://ycpweb.ycp.edu/schedule-of-classes/index.html?term=201420&stype=A&dmode=D&dept=ENT_03'

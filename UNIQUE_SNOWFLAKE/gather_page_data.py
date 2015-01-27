@@ -18,7 +18,7 @@ def process_url(url):
     terms = [term.get('value') for term in soup.find_all('option')]
     return terms
 
-@timeIt
+@timeIt()
 def main():
     url = r'http://ycpweb.ycp.edu/schedule-of-classes/'
     soup = get_soup(url)

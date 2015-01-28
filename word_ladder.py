@@ -42,6 +42,7 @@ import itertools as it
 import string
 import time
 import cPickle
+import csv
 import datetime
 from MyDevTools.FileTools import get_file
 from MyDevTools.MyDebug import timeIt
@@ -74,26 +75,29 @@ for word in sorted_words:
     
 #print sorted_dic[3], len(sorted_dic[3])
 
-print sorted_dic[22]  
+#print sorted_dic[14]  
 
 @timeIt()
 def main():
     frontier = []
     word_bank = set()
     word_found = False
-    goal = 'SHADEY'
-    start_word = 'SHADES'
+    goal = 'MAN'
+    start_word = 'APE'
     initial_state = {
                         'history': (start_word,),
                         'current' : start_word
                     }
-    previous = set(start_word)
+    previous = set([start_word])
     frontier.append(initial_state)
+    with open(r'C:\Users\J\Desktop\ladders.csv', 'w'):
+        pass
     while frontier:
         frontier = sorted(frontier, 
-                          key=lambda path:len(path['history']),
+                         key=lambda path: len(path['history']),
                           reverse=True
                           )
+
         path = frontier.pop()
 
         print path['history']
@@ -104,6 +108,9 @@ def main():
             new_paths = get_successors(path)
             for new_path in new_paths:
                 if new_path['current'] not in previous:
+                    with open(r'C:\Users\J\Desktop\ladders.csv', 'a') as f:
+                        csv_writer = csv.writer(f)
+                        csv_writer.writerow(new_path['history'])
                     previous.add(new_path['current'])                                
                     frontier.append(new_path)
 #        print time.clock()-t0, datetime.datetime.now()-dt
@@ -191,6 +198,7 @@ def test():
 
     
 if __name__ == '__main__':
+#    pass
 #    pass
 #    test()
     main()

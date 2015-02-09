@@ -24,7 +24,7 @@ from MyDevTools.MyPerformanceTools import memo
 def fib(n):
     return n if n == 1 or n == 0 else fib(n-1)+fib(n-2)
 
-@timeIt
+@timeIt()
 def main():
     stop, _sum, n, term = 4*10**6, 0, 0, 0
     while term <= stop:

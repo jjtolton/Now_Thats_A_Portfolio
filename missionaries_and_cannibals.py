@@ -60,9 +60,9 @@ def get_successors(p, initial_state):
     history = path['history']
     moves = [0,1,2]
     new_states = []
-    print "\t",path
+#    print "\t",path
     boat_left = not path['current'][4]
-    print boat_left
+#    print boat_left
     if boat_left:
         new_states = [list(state + np.array([-a,-b,a,b,0]))[:-1] + [1]
                         for a in moves for b in moves
@@ -71,7 +71,7 @@ def get_successors(p, initial_state):
         new_states = [list(state + np.array([a,b,-a,-b,0]))[:-1] + [0] 
                         for a in moves for b in moves
                         if 1 <= a + b <= 2]
-    print "\t\t", new_states
+#    print "\t\t", new_states
     new_states = [list(new_state) for new_state in new_states]
     new_states = [new_state for new_state in new_states
                         if 0 <= new_state[0] <= max_m
@@ -84,8 +84,8 @@ def get_successors(p, initial_state):
                         if new_state[2] == 0 or \
                             new_state[2] >= 1 and \
                             new_state[2] >= new_state[3]]
-    for new_state in new_states:
-        print "Possible state:",new_state
+#    for new_state in new_states:
+#        print "Possible state:",new_state
     for new_state in new_states:
         new_state = tuple(new_state)
         new_path = {
@@ -134,6 +134,9 @@ def shortest_path_search(initial_state, end_state, get_successor_func):
 
 def prettyPrint(p):
     """Print the path in a readable format"""
+    if p == False:
+        print "No solution."
+        return None
     history = p['history']
     counter = 1
     for m1,c1,m2,c2,boat in history:

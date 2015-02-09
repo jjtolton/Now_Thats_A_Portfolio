@@ -46,7 +46,9 @@ import csv
 import datetime
 from MyDevTools.FileTools import get_file
 from MyDevTools.MyDebug import timeIt
-    
+from concurrent.futures import ProcessPoolExecutor as Pool
+
+
 fin = r'C:\Users\J\Documents\Python Scripts\english_words.db'
 print fin
 
@@ -77,13 +79,25 @@ for word in sorted_words:
 
 #print sorted_dic[14]  
 
-@timeIt()
 def main():
+    start_word = 'FIFTY'
+    goal = 'HUMAN'
+#    find_word_ladder(start_word, goal)
+    pool = Pool()
+    test_data = { 'current' : start_word ,
+                  'history' : (start_word,)}
+    r = pool.submit(get_successors, test_data)
+    while not r.done():
+        if r.done():
+            break
+    for _ in r.result():
+        print _
+
+
+def find_word_ladder(start_word, goal):
     frontier = []
     word_bank = set()
     word_found = False
-    goal = 'MAN'
-    start_word = 'APE'
     initial_state = {
                         'history': (start_word,),
                         'current' : start_word

@@ -44,14 +44,14 @@ import time
 import cPickle
 import csv
 import datetime
-from MyDevTools.FileTools import get_file
+#from MyDevTools.FileTools import get_file
 from MyDevTools.MyDebug import timeIt
     
 fin = r'C:\Users\J\Documents\Python Scripts\english_words.db'
 print fin
 
 en_words = None
-en_ = shelve.open(fin, flag='r')
+en_ = shelve.open(fin)
 try:
     en_words = en_['all_words']
 finally:

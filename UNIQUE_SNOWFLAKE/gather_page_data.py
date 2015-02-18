@@ -60,5 +60,6 @@ def main():
         class_info.close()            
 
     print '', counter.next()-1, "courses!"
+
 if __name__ == '__main__':
     main()

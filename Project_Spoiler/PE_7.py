@@ -3,8 +3,9 @@ __author__ = 'Atom Mk. IX2'
 import sys
 import prime
 import itertools
+from MyDebug import timeIt
 
-
+@timeIt()
 def main():
 
     isPrime = prime.isPrime

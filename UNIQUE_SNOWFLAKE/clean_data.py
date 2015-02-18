@@ -106,7 +106,7 @@ def pretty_courses(courses):
     for course in courses:
         print course
         
-    
-page = r'http://ycpweb.ycp.edu/schedule-of-classes/index.html?term=201420&stype=A&dmode=D&dept=ENT_03'
 
-pretty_courses(scrape_page(page))
+if __name__ == '__main__':    
+    page = r'http://ycpweb.ycp.edu/schedule-of-classes/index.html?term=201420&stype=A&dmode=D&dept=ENT_03'    
+    pretty_courses(scrape_page(page))

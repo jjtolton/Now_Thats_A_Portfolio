@@ -14,3 +14,4 @@ asn1_binary_compiler: In case you were ever interested in the exciting world of 
 UNIQUE_SNOWFLAKE:
     Some web scraping scripts for a college scheduling app
 
+data_visualizations: Here are a bunch of visualizations I created for analyzing the cell network in Buenos Ares, generated with JS and Python

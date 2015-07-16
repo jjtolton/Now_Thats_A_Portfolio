@@ -57,9 +57,7 @@ to the right.
 """
 
 import itertools as it
-from MyDevTools.MyDebug import timeIt
 
-@timeIt()
 def main():
     state_history = set()
     """state_format = (left_side,right_side, cum_time)"""

@@ -8,3 +8,9 @@ Scripts:
     indexof.py: Find the shortest substring within a string
     missionaries_and_cannibals.py:  Get across the river without being eaten!
 
+asn1_binary_compiler: In case you were ever interested in the exciting world of deciphering telecom data,
+                      look no further...
+
+UNIQUE_SNOWFLAKE:
+    Some web scraping scripts for a college scheduling app
+

@@ -1,9 +1,8 @@
-from asn1_binary_compiler import parse
-from asn1_binary_compiler import get_processed_cm_cell_data, get_processed_cm_rel_data, get_pm_data_with_prefix_removed, \
-    seperate_cells_from_relations, get_formatted_relations, get_processed_relations, get_formatted_cells, \
-    get_processed_cells, merge_processed_data
-
 __author__ = 'jay'
+from asn1_binary_compiler.cm_parser import parse
+from asn1_binary_compiler.asn_1_compiler_lib import get_processed_cm_cell_data, get_processed_cm_rel_data, \
+    get_pm_data_with_prefix_removed, seperate_cells_from_relations, get_formatted_relations, get_processed_relations, \
+    get_formatted_cells, get_processed_cells, merge_processed_data
 
 def compile_asn1(import_file_path, cm_cell_data, cm_rel_data):
     processed_cm_cell_data = get_processed_cm_cell_data(cm_cell_data)
@@ -24,4 +23,3 @@ def compile_asn1(import_file_path, cm_cell_data, cm_rel_data):
     processed_data = merge_processed_data(processed_cells, processed_relations)
 
     return processed_data
-

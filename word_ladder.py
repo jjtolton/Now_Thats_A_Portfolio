@@ -45,8 +45,8 @@ import cPickle
 import csv
 import datetime
 #from MyDevTools.FileTools import get_file
-from MyDevTools.MyDebug import timeIt
-    
+# from MyDevTools.MyDebug import timeIt
+
 fin = r'C:\Users\J\Documents\Python Scripts\english_words.db'
 print fin
 
@@ -72,10 +72,10 @@ for word in sorted_words:
         sorted_dic[len_word].append(word)
     except KeyError:
         sorted_dic[len_word] = [word]
-    
+
 #print sorted_dic[3], len(sorted_dic[3])
 
-#print sorted_dic[14]  
+#print sorted_dic[14]
 
 @timeIt()
 def main():

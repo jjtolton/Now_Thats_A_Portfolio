@@ -1,0 +1,1 @@
+These are some files I annotated to assist other individuals who are teaching themselves Python.

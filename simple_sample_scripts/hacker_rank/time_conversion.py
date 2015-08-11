@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __author__ = 'jay'
 
 
@@ -43,7 +45,6 @@ def get_inputs():
         except EOFError:
             break
 
-
 def main():
     import time
     t = time.strptime(get_inputs().next(),  # time, in format hour:minute:second(am/pm)
@@ -52,5 +53,5 @@ def main():
     # reformat and reprint the output to 24-hour time
     print time.strftime('%H:%M:%S', t)
 
-
-main()
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 __author__ = 'jay'
+
 
 # Problem Statement
 # 
@@ -57,6 +60,7 @@ def get_inputs(test_inputs=None):
         for test_input in test_inputs:
             yield test_input
 
+
 def get_shift(letters, rot):
     return letters[rot:] + letters[:rot]
 
@@ -78,6 +82,7 @@ def main():
     cipher = string.translate(s, table)
 
     print cipher
+
 
 if __name__ == '__main__':
     main()

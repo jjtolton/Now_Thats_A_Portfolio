@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Problem Statement
 # 
 # You are given an integer N. Print the factorial of this number.
@@ -26,6 +28,7 @@
 # 15511210043330985984000000
 # 
 
+
 def get_inputs(test_inputs=None):
     """
     Note: this will only work on the hackerrank website, no correlation to real life Python
@@ -44,17 +47,21 @@ def get_inputs(test_inputs=None):
         for test_input in test_inputs:
             yield test_input
 
+
 def get_factorial(n):
     import math
     return math.factorial(n)
-    
+
+
 def main():
     n = int(get_inputs().next())
     res = get_factorial(n)
-    
+
     if 'L' in str(res):
         res = str(res).replace('L', '')
-    
+
     print res
-    
-main()
+
+
+if __name__ == '__main__':
+    main()

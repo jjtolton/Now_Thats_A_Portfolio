@@ -4,6 +4,8 @@ Created on Tue Jan 27 21:13:50 2015
 
 @author: J
 
+TL;DR:  Djikstra's algorithm application
+
 Cannibals and Missionaries
 
 Diagram
@@ -72,7 +74,7 @@ def get_successors(p, initial_state):
         new_states = [list(state + np.array([a, b, -a, -b, 0]))[:-1] + [0]
                       for a in moves for b in moves
                       if 1 <= a + b <= 2]
-    #    print "\t\t", new_states
+    # print "\t\t", new_states
     new_states = [list(new_state) for new_state in new_states]
     new_states = [new_state for new_state in new_states
                   if 0 <= new_state[0] <= max_m
@@ -152,12 +154,14 @@ def prettyPrint(p):
         )
         counter += 1
 
+
 def main():
     start_state = (3, 3, 0, 0, 0)
     end_state = (0, 0, 3, 3, 1)
 
     p = shortest_path_search(start_state, end_state)
     prettyPrint(p)
+
 
 if __name__ == '__main__':
     main()

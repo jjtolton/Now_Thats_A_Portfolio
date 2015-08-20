@@ -4,12 +4,12 @@ __author__ = 'jay'
 
 
 def c2f(c):
-    f = 9.0 / 5 * c + 32
+    f = (9.0 / 5.0) * (c + 32)
     return f
 
 
 def f2c(f):
-    c = (f - 32) * 5.0 / 9.0
+    c = (5.0 / 9.0) * (f - 32)
     return c
 
 

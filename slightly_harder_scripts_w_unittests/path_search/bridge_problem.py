@@ -72,7 +72,7 @@ def main():
     the final accumulated time"""
     left_side = 1, 2, 7, 10
     left_side = frozenset(left_side)
-    right_side = 5
+    right_side = 5,
     right_side = frozenset(right_side)
 
     """set initial state"""

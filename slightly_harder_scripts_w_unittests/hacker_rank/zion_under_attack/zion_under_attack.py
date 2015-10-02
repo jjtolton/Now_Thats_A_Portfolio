@@ -1,4 +1,9 @@
-# __author__ = 'jay'
+ __author__ = 'jay'
+
+
+# ------------------- UNDER DEVELOPMENT
+
+
 #
 # Problem Statement
 #
@@ -192,13 +197,13 @@ class TestUtilityFunctions(TestZionUnderAttack):
 
 class TestGetPathsToDestroy(unittest.TestCase):
 
-    '''    self.city_data = ['0', '1', '10',
+    """    self.city_data = ['0', '1', '10',
                           '2', '3', '20',
                           '5', '7', '42',
                           '2', '1', '7'].__iter__()
 
         self.machine_data = ['0', '3', '7'].__iter__()
-    '''
+    """
     def test_get_paths_to_destroy(self):
 
         expected_res = ['']

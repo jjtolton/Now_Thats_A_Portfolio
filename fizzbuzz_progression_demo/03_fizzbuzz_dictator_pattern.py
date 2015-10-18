@@ -1,5 +1,3 @@
-from collections import defaultdict, OrderedDict
-
 __author__ = 'jay'
 
 def fizz(n):
@@ -14,7 +12,7 @@ def return_self(n):
     return n
 
 
-def get_dispatches():
+def get_dictator():
     dispatches = (
         (lambda n: True, return_self),
         (lambda n: n % 3 == 0, fizz),
@@ -24,9 +22,9 @@ def get_dispatches():
 
 def main():
 
-    dispatches = get_dispatches()
+    dictator = get_dictator()
     for i in range(20):
-        for meets_condition, behavior in dispatches:
+        for meets_condition, behavior in dictator:
             if meets_condition(i):
                 print behavior(i),
         print ''

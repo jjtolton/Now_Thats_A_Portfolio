@@ -1,37 +1,9 @@
-# ----------
-# Part Three
-#
-# Now you'll actually track down and recover the runaway Traxbot.
-# In this step, your speed will be about twice as fast the runaway bot,
-# which means that your bot's distance parameter will be about twice that
-# of the runaway. You can move less than this parameter if you'd
-# like to slow down your bot near the end of the chase.
-#
-# ----------
-# YOUR JOB
-#
-# Complete the next_move function. This function will give you access to
-# the position and heading of your bot (the hunter); the most recent
-# measurement received from the runaway bot (the target), the max distance
-# your bot can move in a given timestep, and another variable, called
-# OTHER, which you can use to keep track of information.
-#
-# Your function will return the amount you want your bot to turn, the
-# distance you want your bot to move, and the OTHER variable, with any
-# information you want to keep track of.
-#
-# ----------
-# GRADING
-#
-# We will make repeated calls to your next_move function. After
-# each call, we will move the hunter bot according to your instructions
-# and compare its position to the target bot's true position
-# As soon as the hunter is within 0.01 stepsizes of the target,
-# you will be marked correct and we will tell you how many steps it took
-# before your function successfully located the target bot.
-#
-# As an added challenge, try to get to the target bot as quickly as
-# possible.
+"""
+This is an implementation of a cognitive AI agent employing case-based reasoning
+implementing a modification of the kNN algorithm.
+
+This file is completely runnable out of the box, so just hit run and enjoy the show :)
+"""
 
 import itertools
 import random

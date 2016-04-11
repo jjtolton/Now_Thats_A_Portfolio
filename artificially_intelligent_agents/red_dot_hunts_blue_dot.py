@@ -3,6 +3,13 @@ This is an implementation of a cognitive AI agent employing case-based reasoning
 implementing a modification of the kNN algorithm.
 
 This file is completely runnable out of the box, so just hit run and enjoy the show :)
+
+What you are watching is the red hunter bot chasing a blue bot which is taking pseudo-random evasive maneuvers.
+The red hunter bot learns the blue bot's behavior and attempts to anticipate it's position, then move to the position
+where the blue bot will be.
+
+The red bot has no prior knowledge of how the blue bot moves.  It observes data points
+and then makes predictions, learning as it goes.
 """
 
 import itertools

@@ -9,23 +9,29 @@ The red hunter bot learns the blue bot's behavior and attempts to anticipate it'
 where the blue bot will be.
 
 The red bot has no prior knowledge of how the blue bot moves.  It observes data points
-and then makes predictions, learning as it goes.
+and then makes predictions, learning as it goes.  Additionally, the hunter bot cannot see the true position
+of the prey bot.  The hunter bot must take sensor readings (black dots).
+
+Legend
+======
+Red Dot -- hunter bot (and hunter bot trail)
+Green Dot -- prey bot current position
+Blue Dot -- prey bot trail
+Black Dot -- what the hunter bot "sees"
 """
 
 import itertools
 import random
 from functools import partial
 import math
+import turtle
 
 
-def distance_between(point1, point2):
-    """Computes distance between point1 and point2. Points are (x, y) pairs."""
-    x1, y1 = point1
-    x2, y2 = point2
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+##############
+# demo utils #
+##############
 
-
-def demo_grading(hunter_bot, target_bot, next_move_fcn, OTHER=None):
+def demo(hunter_bot, target_bot, next_move_fcn, OTHER=None, visualization=False):
     """Returns True if your next_move_fcn successfully guides the hunter_bot
     to the target_bot. This function is here to help you understand how we
     will grade your submission."""
@@ -34,7 +40,8 @@ def demo_grading(hunter_bot, target_bot, next_move_fcn, OTHER=None):
     caught = False
     ctr = 0
 
-    visualize = init_visualization(target_bot, hunter_bot)
+    if visualization:
+        visualize = init_visualization(target_bot)
     # We will use your next_move_fcn until we catch the target or time expires.
     while not caught and ctr < 1000:
 
@@ -67,16 +74,89 @@ def demo_grading(hunter_bot, target_bot, next_move_fcn, OTHER=None):
         if ctr >= 1000:
             print "It took too many steps to catch the target."
 
-        visualize(hunter_position, target_position)
+        if visualization:
+            visualize(hunter_position, target_position, target_measurement)
 
     return caught
 
+
+###################
+# rendering utils #
+###################
+
+
+def init_visualization(target_bot, size_multiplier=12.0):
+    # For Visualization
+
+    init_window(color='white', size=size_multiplier)
+
+    prey_bot = get_bot('green', 'turtle')
+    hunter_bot = get_bot('red', 'circle')
+    trail = get_bot('blue', 'arrow')
+    sensor_readings = get_bot('black', 'circle')
+
+    init_bots(hunter_bot, prey_bot, trail, sensor_readings)
+
+    def visualize(hunter_pos, target_pos, sensor_measurement):
+        # More Visualization
+        hunter_bot.setheading(target_bot.heading * 180 / math.pi)
+        hunter_bot.goto(hunter_pos[0] * size_multiplier, hunter_pos[1] * size_multiplier - 200)
+        hunter_bot.stamp()
+        prey_bot.setheading(target_bot.heading * 180 / math.pi)
+        prey_bot.goto(target_bot.x * size_multiplier, target_bot.y * size_multiplier - 200)
+        prey_bot.stamp()
+        trail.setheading(target_bot.heading * 180 / math.pi)
+        trail.goto(target_pos[0] * size_multiplier, target_pos[1] * size_multiplier - 200)
+        trail.stamp()
+        sensor_readings.setheading(target_bot.heading * 180 / math.pi)
+        sensor_readings.goto(sensor_measurement[0] * size_multiplier, sensor_measurement[1] * size_multiplier - 200)
+        sensor_readings.stamp()
+
+        # End of Visualization
+
+    return visualize
+
+
+def init_window(color, size):
+    window = turtle.Screen()
+    window.bgcolor(color)
+
+
+def get_bot(green, shape):
+    bot = turtle.Turtle()
+    config_bot(green, bot, shape)
+    return bot
+
+
+def init_bots(*bots):
+    for bot in bots:
+        bot.penup()
+
+
+def config_bot(color, prey_bot, shape):
+    prey_bot.shape(shape)
+    prey_bot.color(color)
+    prey_bot.resizemode('user')
+    prey_bot.shapesize(0.1, 0.1, 0.1)
+    return prey_bot
+
+
+#########################
+#  basic knn utilities  #
+#########################
 
 def angle_trunc(a):
     """This maps all angles to a domain of [-pi, pi]"""
     while a < 0.0:
         a += math.pi * 2
     return ((a + math.pi) % (math.pi * 2)) - math.pi
+
+
+def distance_between(point1, point2):
+    """Computes distance between point1 and point2. Points are (x, y) pairs."""
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
 def get_heading(hunter_position, target_position):
@@ -87,88 +167,6 @@ def get_heading(hunter_position, target_position):
     heading = angle_trunc(heading)
     return heading
 
-
-def naive_next_move(hunter_position, hunter_heading, target_measurement, max_distance, OTHER):
-    """This strategy always tries to steer the hunter directly towards where the target last
-    said it was and then moves forwards at full speed. This strategy also keeps track of all
-    the target measurements, hunter positions, and hunter headings over time, but it doesn't
-    do anything with that information."""
-    if not OTHER:  # first time calling this function, set up my OTHER variables.
-        measurements = [target_measurement]
-        hunter_positions = [hunter_position]
-        hunter_headings = [hunter_heading]
-        OTHER = (measurements, hunter_positions, hunter_headings)  # now I can keep track of history
-    else:  # not the first time, update my history
-        OTHER[0].append(target_measurement)
-        OTHER[1].append(hunter_position)
-        OTHER[2].append(hunter_heading)
-        measurements, hunter_positions, hunter_headings = OTHER  # now I can always refer to these variables
-
-    heading_to_target = get_heading(hunter_position, target_measurement)
-    heading_difference = heading_to_target - hunter_heading
-    turning = heading_difference  # turn towards the target
-    distance = max_distance  # full speed ahead!
-    return turning, distance, OTHER
-
-
-def init_visualization(target_bot, hunter_bot):
-    # For Visualization
-    import turtle  # You need to run this locally to use the turtle module
-    window = turtle.Screen()
-    window.bgcolor('white')
-    size_multiplier = 12.0  # change Size of animation
-    broken_robot = turtle.Turtle()
-    broken_robot.shape('turtle')
-    broken_robot.color('green')
-    broken_robot.resizemode('user')
-    broken_robot.shapesize(0.1, 0.1, 0.1)
-    hunter_bot = turtle.Turtle()
-    hunter_bot.shape('circle')
-    hunter_bot.color('red')
-    hunter_bot.resizemode('user')
-    hunter_bot.shapesize(0.1, 0.1, 0.1)
-    prediction = turtle.Turtle()
-    prediction.shape('arrow')
-    prediction.color('blue')
-    prediction.resizemode('user')
-    prediction.shapesize(0.1, 0.1, 0.1)
-    prediction.penup()
-    broken_robot.penup()
-    hunter_bot.penup()
-
-    # End of Visualization
-
-
-    def visualize(hunter_pos, target_pos):
-        # More Visualization
-        hunter_bot.setheading(target_bot.heading * 180 / math.pi)
-        hunter_bot.goto(hunter_pos[0] * size_multiplier, hunter_pos[1] * size_multiplier - 200)
-        hunter_bot.stamp()
-        broken_robot.setheading(target_bot.heading * 180 / math.pi)
-        broken_robot.goto(target_bot.x * size_multiplier, target_bot.y * size_multiplier - 200)
-        broken_robot.stamp()
-        prediction.setheading(target_bot.heading * 180 / math.pi)
-        prediction.goto(target_pos[0] * size_multiplier, target_pos[1] * size_multiplier - 200)
-        prediction.stamp()
-        # End of Visualization
-
-    return visualize
-
-
-# This is a demo for what a strategy could look like. This one isn't very good.
-def naive_next_pos(measurement, OTHER=None):
-    """This strategy records the first reported position of the target and
-    assumes that eventually the target bot will eventually return to that
-    position, so it always guesses that the first position will be the next."""
-    if not OTHER:  # this is the first measurement
-        OTHER = measurement
-    xy_estimate = OTHER
-    return xy_estimate, OTHER
-
-
-#########################
-#  basic knn utilities  #
-#########################
 
 def point_displacement(p1, p2):
     p_n_euclidean = lambda x, y: weighted_n_euclidean(x, y, w=[1] * len(x))
@@ -225,6 +223,7 @@ def weighted_n_euclidean(v1, v2, w=None):
 #################
 # knn framework #
 #################
+
 
 class ApproachNotFoundException(Exception):
     pass
@@ -328,12 +327,12 @@ def knn(approach_getter, modifier, storable_packager, state_advancer, evaluator,
 
 
 #########################################
-# knn configuration for runaway robot   #
+# knn configuration for hunter robot    #
 # --- I call him rob :)                 #
 #########################################
 
 
-class RRState(object):
+class RobotState(object):
     __slots__ = ['case', 'cases', 'previous_case', 'initial_point']
 
     def __init__(self, case=None, cases=None, previous_case=None, initial_point=None):
@@ -353,7 +352,7 @@ def zeroed_case(case):
     return c_path
 
 
-def rr_approach_getter(case, state):
+def robot(case, state):
     cases = get_cases(state)
     z_case = zeroed_case(case)
     case_data = closest_case(z_case, cases)
@@ -384,10 +383,11 @@ def unzero_case(n_path, case):
     return u_path
 
 
-def rr_approach_modifier(approach_data, *unused):
-    case, closest_case, next_point = unpack_approach_data(approach_data)
+def robot_approach_modifier(approach_data,
+                            *unused):  # knn framework allows for extra arguments which are supplied but not used
+    case, _closest_case, next_point = unpack_approach_data(approach_data)
     c_case = zeroed_case(case)
-    next_point_deltas = get_deltas(closest_case[-1], next_point)
+    next_point_deltas = get_deltas(_closest_case[-1], next_point)
     n_point = next_point_from_deltas(c_case[-1], next_point_deltas)
     n_path = tuple(c_case) + (n_point,)
     unzeroed_case = unzero_case(n_path, case)
@@ -395,7 +395,7 @@ def rr_approach_modifier(approach_data, *unused):
     return lambda *args, **kwargs: unzeroed_case[-1]
 
 
-def rr_evaluator(case, a_data, state):
+def robot_evaluator(case, a_data, state):
     return a_data()
 
 
@@ -407,8 +407,8 @@ def package_case_data(case, z_case, e_data):
     )
 
 
-def rr_state_advancer(storable, state):
-    return RRState(
+def robot_state_advancer(storable, state):
+    return RobotState(
         case=state.case,
         cases=get_cases(state),
         previous_case=storable,
@@ -416,65 +416,65 @@ def rr_state_advancer(storable, state):
     )
 
 
-def rr_packager(e_data, case, state):
+def robot_packager(e_data, case, state):
     z_case = zeroed_case(case)
     previous_case = package_case_data(case, z_case, e_data)
     return previous_case
 
 
-def rr_knn_actions():
-    return partial(knn, rr_approach_getter, rr_approach_modifier, rr_packager, rr_state_advancer, rr_evaluator)
+def robot_knn_actions():
+    return partial(knn, robot, robot_approach_modifier, robot_packager, robot_state_advancer, robot_evaluator)
 
 
 def get_cases(state):
     return state.cases
 
 
-def get_last_guess(rr_state):
-    return rr_state.previous_case['data']
+def get_last_guess(robot_state):
+    return robot_state.previous_case['data']
 
 
-def update_rr_state(measurement, rr_state, error_threshold):
-    previous_guess = get_last_guess(rr_state)
+def update_robot_state(measurement, robot_state, error_threshold):
+    previous_guess = get_last_guess(robot_state)
     error = distance_between(measurement, previous_guess)
 
     if error > error_threshold:
-        new_cases = get_cases(rr_state)
+        new_cases = get_cases(robot_state)
     else:
-        zeroed_measurement = get_zeroed_measurement(measurement, rr_state)
-        previous_z_case = get_previous_z_case(rr_state)
-        cases = get_cases(rr_state)
+        zeroed_measurement = get_zeroed_measurement(measurement, robot_state)
+        previous_z_case = get_previous_z_case(robot_state)
+        cases = get_cases(robot_state)
         new_cases = {tuple(k): v for k, v in itertools.chain([(previous_z_case, zeroed_measurement)], cases.items())}
 
-    updated_state = RRState(
-        case=rr_state.case,
+    updated_state = RobotState(
+        case=robot_state.case,
         cases=new_cases,
-        previous_case=rr_state.previous_case,
-        initial_point=rr_state.initial_point
+        previous_case=robot_state.previous_case,
+        initial_point=robot_state.initial_point
     )
 
     return updated_state
 
 
-def get_previous_z_case(rr_state):
-    return rr_state.previous_case['z_case']
+def get_previous_z_case(robot_state):
+    return robot_state.previous_case['z_case']
 
 
-def get_previous_case(rr_state):
-    return rr_state.previous_case['case']
+def get_previous_case(robot_state):
+    return robot_state.previous_case['case']
 
 
-def get_zeroed_measurement(measurement, rr_state):
-    case = get_previous_case(rr_state)
+def get_zeroed_measurement(measurement, robot_state):
+    case = get_previous_case(robot_state)
     path = case + (measurement,)
     zeroed_measurement = tuple(zeroed_case(path))[-1]
     return zeroed_measurement
 
 
-def get_current_rr_state(measurement, state):
+def get_current_robot_state(measurement, state):
     new_case = state.case[1:] + (measurement,)
 
-    return RRState(
+    return RobotState(
         case=new_case,
         cases=state.cases,
         previous_case=state.previous_case,
@@ -482,19 +482,19 @@ def get_current_rr_state(measurement, state):
     )
 
 
-def rr_normalize(path):
+def robot_normalize(path):
     normalized = compensate(path)
     return normalized
 
 
-def get_initial_rr_state(OTHER, measurement):
+def get_initial_robot_state(OTHER, measurement):
     initial_point = OTHER[0]
     first_case = OTHER + (measurement,)
     z_path = zero_path(first_case)
-    stored_case = rr_normalize(z_path)
+    stored_case = robot_normalize(z_path)
     corrected_path, corrected_measurement = tuple(stored_case[:-1]), stored_case[-1]
 
-    state = RRState(
+    state = RobotState(
         case=first_case[1:],
         cases={corrected_path: corrected_measurement},
         previous_case=None,
@@ -505,32 +505,50 @@ def get_initial_rr_state(OTHER, measurement):
 
 
 def config_estimate_next_pos(data_points, error_threshold):
-    knn_action = rr_knn_actions()
+    knn_action = robot_knn_actions()
 
     def _estimate_next_pos(measurement, OTHER=None):
         """Estimate the next (x, y) position of the wandering Traxbot
         based on noisy (x, y) measurements."""
 
-        if isinstance(OTHER, RRState):
-            state = OTHER
+        online = lambda other: isinstance(other, RobotState)
+        initialize = lambda other: isinstance(other, tuple) and len(other) == data_points
+        options = {
+            online: update,
+            initialize: begin
+        }
 
-            cur_state = get_current_rr_state(measurement, state)
-            rr_state = knn_action(cur_state)
-            updated_state = update_rr_state(measurement, rr_state, error_threshold)
+        res = (reduce(lambda l, x: l + [x[1](OTHER, measurement)] if (not l and x[0](OTHER)) else l, options.items(), [])
+                 or [learn(OTHER, measurement)])[0]
 
-            return get_next_posn_guess(updated_state), updated_state
 
-        elif isinstance(OTHER, tuple) and len(OTHER) == data_points:
-            state = get_initial_rr_state(OTHER, measurement)
-            return (0, 0), state
+        return res
 
-        else:
-            if OTHER is None:
-                OTHER = tuple()
-            return (0, 0), OTHER + (measurement,)
+    def update(OTHER, measurement):
+        updated_state = get_updated_state(OTHER, measurement)
+        res = get_next_posn_guess(updated_state), updated_state
+        return res
 
-    def get_next_posn_guess(rr_state):
-        return rr_state.previous_case['data']
+    def begin(OTHER, measurement):
+        state = get_initial_robot_state(OTHER, measurement)
+        res = (0, 0), state
+        return res
+
+    def learn(OTHER, measurement):
+        if OTHER is None:
+            OTHER = tuple()
+        res = (0, 0), OTHER + (measurement,)
+        return res
+
+    def get_updated_state(OTHER, measurement):
+        state = OTHER
+        cur_state = get_current_robot_state(measurement, state)
+        robot_state = knn_action(cur_state)
+        updated_state = update_robot_state(measurement, robot_state, error_threshold)
+        return updated_state
+
+    def get_next_posn_guess(robot_state):
+        return robot_state.previous_case['data']
 
     return _estimate_next_pos
 
@@ -542,7 +560,7 @@ def config_next_move(data_points, tolerance=0.2):
         # This function will be called after each time the target moves.
         next_pos, next_other = estimate_next_pos(target_measurement, OTHER)
 
-        if not isinstance(next_other, RRState):
+        if not isinstance(next_other, RobotState):
             return 0, 0, next_other
 
         move, turn = turn_towards(next_pos, hunter_position, hunter_heading)
@@ -654,151 +672,16 @@ class Robot:
         return '[%.5f, %.5f]' % (self.x, self.y)
 
 
-########################################
-#  Matrix class code                   #
-#  -- credit: Sebastian Thrun, Udacity #
-########################################
 
-class Matrix:
-    def __init__(self, value):
-        self.value = value
-        self.dimx = len(value)
-        self.dimy = len(value[0])
-        if value == [[]]:
-            self.dimx = 0
-
-    def zero(self, dimx, dimy):
-        # check if valid dimensions
-        if dimx < 1 or dimy < 1:
-            raise ValueError, "Invalid size of matrix"
-        else:
-            self.dimx = dimx
-            self.dimy = dimy
-            self.value = [[0 for row in range(dimy)] for col in range(dimx)]
-
-    def identity(self, dim):
-        # check if valid dimension
-        if dim < 1:
-            raise ValueError, "Invalid size of matrix"
-        else:
-            self.dimx = dim
-            self.dimy = dim
-            self.value = [[0 for row in range(dim)] for col in range(dim)]
-            for i in range(dim):
-                self.value[i][i] = 1
-
-    def show(self):
-        for i in range(self.dimx):
-            print self.value[i]
-        print ' '
-
-    def __add__(self, other):
-        # check if correct dimensions
-        if self.dimx != other.dimx or self.dimx != other.dimx:
-            raise ValueError, "Matrices must be of equal dimension to add"
-        else:
-            # add if correct dimensions
-            res = Matrix([[]])
-            res.zero(self.dimx, self.dimy)
-            for i in range(self.dimx):
-                for j in range(self.dimy):
-                    res.value[i][j] = self.value[i][j] + other.value[i][j]
-            return res
-
-    def __sub__(self, other):
-        # check if correct dimensions
-        if self.dimx != other.dimx or self.dimx != other.dimx:
-            raise ValueError, "Matrices must be of equal dimension to subtract"
-        else:
-            # subtract if correct dimensions
-            res = Matrix([[]])
-            res.zero(self.dimx, self.dimy)
-            for i in range(self.dimx):
-                for j in range(self.dimy):
-                    res.value[i][j] = self.value[i][j] - other.value[i][j]
-            return res
-
-    def __mul__(self, other):
-        # check if correct dimensions
-        if self.dimy != other.dimx:
-            raise ValueError, "Matrices must be m*n and n*p to multiply"
-        else:
-            # multiply if correct dimensions
-            res = Matrix([[]])
-            res.zero(self.dimx, other.dimy)
-            for i in range(self.dimx):
-                for j in range(other.dimy):
-                    for k in range(self.dimy):
-                        res.value[i][j] += self.value[i][k] * other.value[k][j]
-        return res
-
-    def transpose(self):
-        # compute transpose
-        res = Matrix([[]])
-        res.zero(self.dimy, self.dimx)
-        for i in range(self.dimx):
-            for j in range(self.dimy):
-                res.value[j][i] = self.value[i][j]
-        return res
-
-    def Cholesky(self, ztol=1.0e-5):
-        # Computes the upper triangular Cholesky factorization of
-        # a positive definite matrix.
-        # This code is based on http://adorio-research.org/wordpress/?p=4560
-        res = Matrix([[]])
-        res.zero(self.dimx, self.dimx)
-
-        for i in range(self.dimx):
-            S = sum([(res.value[k][i]) ** 2 for k in range(i)])
-            d = self.value[i][i] - S
-            if abs(d) < ztol:
-                res.value[i][i] = 0.0
-            else:
-                if d < 0.0:
-                    raise ValueError, "Matrix not positive-definite"
-                res.value[i][i] = math.sqrt(d)
-            for j in range(i + 1, self.dimx):
-                S = sum([res.value[k][i] * res.value[k][j] for k in range(i)])
-                if abs(S) < ztol:
-                    S = 0.0
-                res.value[i][j] = (self.value[i][j] - S) / res.value[i][i]
-        return res
-
-    def CholeskyInverse(self):
-        # Computes inverse of matrix given its Cholesky upper Triangular
-        # decomposition of matrix.
-        # This code is based on http://adorio-research.org/wordpress/?p=4560
-
-        res = Matrix([[]])
-        res.zero(self.dimx, self.dimx)
-
-        # Backward step for inverse.
-        for j in reversed(range(self.dimx)):
-            tjj = self.value[j][j]
-            S = sum([self.value[j][k] * res.value[j][k] for k in range(j + 1, self.dimx)])
-            res.value[j][j] = 1.0 / tjj ** 2 - S / tjj
-            for i in reversed(range(j)):
-                res.value[j][i] = res.value[i][j] = -sum(
-                    [self.value[i][k] * res.value[k][j] for k in range(i + 1, self.dimx)]) / self.value[i][i]
-        return res
-
-    def inverse(self):
-        aux = self.Cholesky()
-        res = aux.CholeskyInverse()
-        return res
-
-    def __repr__(self):
-        return repr(self.value)
-
-
-def demo():
+def main():
     # This is how we create a target bot. Check the robot.py file to understand
     # How the robot class behaves.
     test_target = Robot(2.1, 4.3, 0.5, 2 * math.pi / 34.0, 1.5)
     measurement_noise = 0.05 * test_target.distance
     test_target.set_noise(0.0, 0.0, measurement_noise)
     hunter_bot = Robot()
-    demo_grading(hunter_bot, test_target, config_next_move(data_points=4, tolerance=.18), OTHER=None)
+    demo(hunter_bot, test_target, config_next_move(data_points=2, tolerance=.18), OTHER=None, visualization=True)
+
 
 if __name__ == '__main__':
-    demo()
+    main()

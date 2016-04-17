@@ -1,5 +1,5 @@
 """
-This is an implementation of a cognitive AI agent employing case-based reasoning
+This is a functional programming implementation of a cognitive AI agent employing case-based reasoning
 implementing a modification of the kNN algorithm.
 
 This file is completely runnable out of the box, so just hit run and enjoy the show :)
@@ -42,6 +42,7 @@ def demo(hunter_bot, target_bot, next_move_fcn, OTHER=None, visualization=False)
 
     if visualization:
         visualize = init_visualization(target_bot)
+
     # We will use your next_move_fcn until we catch the target or time expires.
     while not caught and ctr < 1000:
 
@@ -514,59 +515,60 @@ def config_estimate_next_pos(data_points, error_threshold):
         online = lambda other: isinstance(other, RobotState)
         initialize = lambda other: isinstance(other, tuple) and len(other) == data_points
         options = {
-            online: update,
+            online: partial(update, knn_action, error_threshold),
             initialize: begin
         }
 
-        res = (reduce(lambda l, x: l + [x[1](OTHER, measurement)] if (not l and x[0](OTHER)) else l, options.items(), [])
-                 or [learn(OTHER, measurement)])[0]
-
+        res = (
+            reduce(lambda l, x: l + [x[1](OTHER, measurement)] if (not l and x[0](OTHER)) else l, options.items(), [])
+         or [learn(OTHER, measurement)])[0]
 
         return res
-
-    def update(OTHER, measurement):
-        updated_state = get_updated_state(OTHER, measurement)
-        res = get_next_posn_guess(updated_state), updated_state
-        return res
-
-    def begin(OTHER, measurement):
-        state = get_initial_robot_state(OTHER, measurement)
-        res = (0, 0), state
-        return res
-
-    def learn(OTHER, measurement):
-        if OTHER is None:
-            OTHER = tuple()
-        res = (0, 0), OTHER + (measurement,)
-        return res
-
-    def get_updated_state(OTHER, measurement):
-        state = OTHER
-        cur_state = get_current_robot_state(measurement, state)
-        robot_state = knn_action(cur_state)
-        updated_state = update_robot_state(measurement, robot_state, error_threshold)
-        return updated_state
-
-    def get_next_posn_guess(robot_state):
-        return robot_state.previous_case['data']
 
     return _estimate_next_pos
+
+
+def update(knn_action, error_threshold, OTHER, measurement):
+    updated_state = get_updated_state(knn_action, error_threshold, OTHER, measurement)
+    res = get_next_posn_guess(updated_state), updated_state
+    return res
+
+
+def begin(OTHER, measurement):
+    state = get_initial_robot_state(OTHER, measurement)
+    res = (0, 0), state
+    return res
+
+
+def learn(OTHER, measurement):
+    if OTHER is None:
+        OTHER = tuple()
+    res = (0, 0), OTHER + (measurement,)
+    return res
+
+
+def get_updated_state(knn_action, error_threshold, OTHER, measurement):
+    state = OTHER
+    cur_state = get_current_robot_state(measurement, state)
+    robot_state = knn_action(cur_state)
+    updated_state = update_robot_state(measurement, robot_state, error_threshold)
+    return updated_state
+
+
+def get_next_posn_guess(robot_state):
+    return robot_state.previous_case['data']
 
 
 def config_next_move(data_points, tolerance=0.2):
     estimate_next_pos = config_estimate_next_pos(data_points, tolerance)
 
-    def next_move(hunter_position, hunter_heading, target_measurement, max_distance, OTHER=None):
-        # This function will be called after each time the target moves.
+    def next_move(hunter_position, hunter_heading, target_measurement, OTHER=None):
         next_pos, next_other = estimate_next_pos(target_measurement, OTHER)
 
         if not isinstance(next_other, RobotState):
             return 0, 0, next_other
 
         move, turn = turn_towards(next_pos, hunter_position, hunter_heading)
-        # The OTHER variable is a place for you to store any historical information about
-        # the progress of the hunt (or maybe some localization information). Your return format
-        # must be as follows in order to be graded properly.
         return turn, move, next_other
 
     return next_move
@@ -672,10 +674,7 @@ class Robot:
         return '[%.5f, %.5f]' % (self.x, self.y)
 
 
-
 def main():
-    # This is how we create a target bot. Check the robot.py file to understand
-    # How the robot class behaves.
     test_target = Robot(2.1, 4.3, 0.5, 2 * math.pi / 34.0, 1.5)
     measurement_noise = 0.05 * test_target.distance
     test_target.set_noise(0.0, 0.0, measurement_noise)

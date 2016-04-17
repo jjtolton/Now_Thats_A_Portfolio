@@ -562,7 +562,7 @@ def get_next_posn_guess(robot_state):
 def config_next_move(data_points, tolerance=0.2):
     estimate_next_pos = config_estimate_next_pos(data_points, tolerance)
 
-    def next_move(hunter_position, hunter_heading, target_measurement, OTHER=None):
+    def next_move(hunter_position, hunter_heading, target_measurement, max_distance, OTHER=None):
         next_pos, next_other = estimate_next_pos(target_measurement, OTHER)
 
         if not isinstance(next_other, RobotState):
@@ -679,7 +679,7 @@ def main():
     measurement_noise = 0.05 * test_target.distance
     test_target.set_noise(0.0, 0.0, measurement_noise)
     hunter_bot = Robot()
-    demo(hunter_bot, test_target, config_next_move(data_points=2, tolerance=.18), OTHER=None, visualization=True)
+    demo(hunter_bot, test_target, config_next_move(data_points=2, tolerance=.18), OTHER=None, visualization=False)
 
 
 if __name__ == '__main__':

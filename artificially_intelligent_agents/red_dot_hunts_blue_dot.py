@@ -679,7 +679,7 @@ def main():
     measurement_noise = 0.05 * test_target.distance
     test_target.set_noise(0.0, 0.0, measurement_noise)
     hunter_bot = Robot()
-    demo(hunter_bot, test_target, config_next_move(data_points=2, tolerance=.18), OTHER=None, visualization=False)
+    demo(hunter_bot, test_target, config_next_move(data_points=2, tolerance=.18), OTHER=None, visualization=True)
 
 
 if __name__ == '__main__':

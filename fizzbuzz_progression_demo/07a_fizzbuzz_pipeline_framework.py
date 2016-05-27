@@ -2,6 +2,7 @@ __author__ = 'jay'
 
 import itertools as it
 
+
 class DataPipeline(object):
     """Object to facilitate the processing of data.
 
@@ -88,20 +89,25 @@ class DataPipeline(object):
             #  == auxiliary funcs ==  #
             # ----------------------- #
 
+
 def word_adder(word, condition):
     def inner(stream):
         for n, printout in stream:
             if condition(n):
                 printout.append(word)
             yield n, printout
+
     return inner
+
 
 def selfie():
     def inner(stream):
         for n, printout in stream:
             printout.append(n)
             yield n, printout
+
     return inner
+
 
 if __name__ == '__main__':
     stream_input = [(x, []) for x in range(20)]

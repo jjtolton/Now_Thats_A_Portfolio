@@ -32,6 +32,21 @@ def merge_with_default(fn, default=None, *dicts):
                            itertools.chain(*itertools.imap(lambda d: d.items(), dicts))}, *dicts)
 
 
+def assoc_in(d, val, k, *ks):
+    return merge_with(lambda a, b: merge(a, b), d, reduce(lambda x, y: {y: x}, ([k] + list(ks) + [val])[::-1]))
+
+
+def are_instances(items, types):
+    return all(map(lambda x: isinstance(x, types), items))
+
+
+def are_dicts(*ds):
+    return are_instances(ds, dict)
+
+
+def supassoc_in(d, val, k, *ks):
+    return merge_with(lambda x, y: merge(x, y) if are_dicts(x.values() + y.values()) else x.values() + y.values(), d, reduce(lambda x, y: {y: x}, ([k] + list(ks) + [val])[::-1]))
+
 def keyfilter(fn, d):
     return {k: v for k, v in d.iteritems() if fn(k)}
 
@@ -68,6 +83,12 @@ def main():
     print(dissoc(a, A))
     print(a)
 
+    # {3: {2: 1}}
+    # {3: {A: B}}
+    # {3: {2: 1. A: B}}
+
+    print(assoc_in({3: {2: 1}}, 'B', 3, 'A'))
+    print(supassoc_in({4: {3: 5}}, 'A', 4, 3, 3, 1))
 
 if __name__ == '__main__':
     main()

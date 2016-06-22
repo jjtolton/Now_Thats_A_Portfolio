@@ -44,8 +44,8 @@ def merge_with(fn, *ds):
 
 def merge_with_default(fn, default=None, *dicts):
     _fn, _default = fn, default
-    return merge_with(_fn, rreduce(fn=lambda d, _: unpack(lambda k: assoc(d, k, _default)),
-                                   seq=itertools.chain(*itertools.imap(lambda d: d.items(), dicts)),
+    return merge_with(_fn, rreduce(fn=lambda d, _: unpack(lambda k, v: assoc(d, k, _default))(_),
+                                   seq=explode(*dicts),
                                    default={}),
                       *dicts)
 
@@ -121,7 +121,7 @@ def main():
     b = {A: 1}
     c = {A: 2}
 
-    # print(merge_with_default(lambda x, y: x + [y], [], a, b, c))
+    print(merge_with_default(lambda x, y: x + [y], [], a, b, c))
     # print(merge_with_default(lambda x, y: x + y, 0, a, b, c))
     # print(itemmap(lambda x, y: (y, x), merge_with_default(lambda x, y: x + y, 0, a, b, c)))
     # print(dissoc(a, A))

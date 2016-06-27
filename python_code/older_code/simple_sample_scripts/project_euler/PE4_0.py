@@ -15,6 +15,8 @@ Project Euler Problem #4 (www.projecteuler.org)
 
 from numpy import array, vectorize
 
+import time
+
 
 def memo(f):
     cache = {}
@@ -54,11 +56,20 @@ def test():
     assert (is_palindrome(90909))
     assert (not is_palindrome(997))
 
+
+def timeit(fn):
+    def _timeit(*args, **kwargs):
+        t = time.time()
+        res = fn(*args, **kwargs)
+        print(time.time() - t)
+        return res
+    return _timeit
+
 @memo
 def main():
     test()
-    print get_largest_palindrome(999 ** 2)
-    print get_largest_palindrome(999 ** 3)
+    print timeit(get_largest_palindrome)(999 ** 2)
+    # print get_largest_palindrome(999 ** 3)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 ; multiples of 3 or 5, we get 3, 5, 6 and 9.
 ; The sum of these multiples is 23.
 ;
-;Find the sum of all the multiples of 3 or 5 below 1000.
+;Find the sum of all4 the multiples of 3 or 5 below 1000.
 
 (ns clojure-work.project-euler.pe1)
 

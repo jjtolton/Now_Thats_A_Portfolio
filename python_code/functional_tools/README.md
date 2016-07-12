@@ -34,6 +34,12 @@ def recursive_dict_merge(*ds):
     return merge_with(lambda a, b: recursive_dict_merge(a, b) if not terminal_dicts(a, b) else merge(a, b), *ds)
 ```
 
+For comparison:
+
+http://stackoverflow.com/questions/32264099/merge-python-dictionary-of-sets
+http://stackoverflow.com/questions/2365921/merging-python-dictionaries
+http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries-in-a-single-expression
+
 ## precompyled.py
 
 

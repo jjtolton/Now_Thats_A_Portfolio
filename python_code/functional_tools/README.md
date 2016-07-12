@@ -61,7 +61,7 @@ class HardToTest(unittest.TestCase):
 ````
 
 Unfortunately, I have seen code like this in *production* in **Fortune 100** companies!  Code like this leads to fragile
- with a greater-than-linear cost of change as time goes on.
+ systems with a greater-than-linear cost of change as time goes on.
 
 With `precompyled`, you only need one `mock` again for the rest of your life:
 

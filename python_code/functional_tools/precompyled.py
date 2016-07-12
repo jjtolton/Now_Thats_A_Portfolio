@@ -2,7 +2,7 @@ from collections import namedtuple
 from functools import wraps
 
 
-def unpack(fn):
+def apply(fn):
     def inner(args):
         return fn(*args)
 
@@ -23,7 +23,7 @@ def precompyled(fn):
 def runall(pc_fn):
     if isinstance(pc_fn, FuncWrap):
         return pc_fn.fn(*map(lambda x: runall(x), pc_fn.args),
-                        **dict(map(unpack(lambda k, v: (runall(k), runall(v))),
+                        **dict(map(apply(lambda k, v: (runall(k), runall(v))),
                                    pc_fn.kwargs.items())))
     return pc_fn
 

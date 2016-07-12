@@ -12,6 +12,8 @@ If you only have time to check one one more thing, `search_and_sort/mergesort.py
 mutually recursive functions while in `search_and_sort/quicksort.py` I compare traditional quicksort
 methods to purely functional implementations.
 
+Lest you think I don't know how to do OO, check out `older_code/fizzbuzz_progression_demo` where I
+take a familiar problem and over-engineer the hell out of it with some of the most popular OO/Python patterns.  ;)
 
  I really embrace the [unix-philosophy](https://en.wikipedia.org/wiki/Unix_philosophy#Origin) in the sense of small,
  robust, yet easy to grok functions that do one thing very well, then combining these powerful tools to create complex behavior.

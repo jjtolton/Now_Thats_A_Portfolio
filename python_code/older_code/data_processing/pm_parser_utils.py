@@ -259,9 +259,6 @@ def normalize_rel_ids(rel_map, num_rel_not_found, num_mul_rel_found):
                     num_rel_not_found[0] += 1  # not in cm relations data, thus
                     continue  # after this step len(pm_rels) = len(cm_rels)
                 tgt_bsc = rel_map[src]
-                ot in cm
-                relations
-                data, thus[tgt_instid]
                 tgt = get_cell_uuid(tgt_bsc, tgt_instid)
                 yield (src, tgt), data
 
@@ -287,15 +284,6 @@ def convert_pm_data_to_kpi_data(kpis):
             yield obj_id, kpi_data
 
     return kpi_obj_stream
-
-if __name__ == '__main__':
-    from lib.vendor.ericsson import cm_reader
-    cell_data = 'data/2g_relations.txt'
-    rel_data = 'data/2g_relations.txt'
-    cm_cell_data = cm_reader.parse_cells(cell_data)
-    cm_rel_data = cm_reader.parse_relations(cm_cell_data)
-    rel_map = get_relations_map(cm_rel_data)
-    print(list(rel_map))
 
 
 

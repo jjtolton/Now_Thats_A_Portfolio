@@ -42,6 +42,43 @@ http://stackoverflow.com/questions/38987/how-can-i-merge-two-python-dictionaries
 
 ## precompyled.py
 
+The `precompyled` module uses the concept of _monads_ as an alternative to extensive mocking.  Often you will see a
+function or method that may make multiple database calls or other things that make testing very difficult, and you have no
+other choice but to write a mock.  Unfortunately, that can start looking like this:
+
+```python
+
+class HardToTest(unittest.TestCase):
+
+    @mock.patch(mockfn1, mock.Mock())
+    @mock.patch(mockfn2, mock.Mock())
+    @mock.patch(mockfn3, mock.Mock())
+    @mock.patch(mockfn4, mock.Mock())
+    @mock.patch(mockfn5, mock.Mock())
+    @mock.patch(mockfn6, mock.Mock())
+    def test_db_con_method(self):
+        ...
+````
+
+Unfortunately, I have seen code like this in *production* in **Fortune 100** companies!  Code like this leads to fragile
+ with a greater-than-linear cost of change as time goes on.
+
+With `precompyled`, you only need one `mock` again for the rest of your life:
+
+```python
+
+@mock.patch(path.to.module.precompyled.runall)
+class HardToTest(unittest.TestCase):
+
+    def test_db_con_method(self, run_mock):
+        ...
+```
+
+This lets you save time on trivialities like configuring mocks and to get on to fun stuff like
+adding features!!
+
+
+
 
 ## License
 

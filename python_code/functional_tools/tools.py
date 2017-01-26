@@ -65,10 +65,7 @@ def merge_with(fn, *ds):
 
 def merge_with_default(fn, default=None, *dicts):
     _fn, _default = fn, default
-    return merge_with(_fn, rreduce(fn=lambda d, _: unpack(lambda k, v: assoc(d, k, _default))(_),
-                                   seq=explode(*dicts),
-                                   default={}),
-                      *dicts)
+    return merge_with(_fn, valmap(lambda v: _default, merge(*dicts)), *dicts)
 
 
 def assoc_in(d, key_list, val):

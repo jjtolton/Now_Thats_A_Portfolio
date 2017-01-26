@@ -47,9 +47,7 @@ def explode(*ds):
 
 
 def merge(*ds):
-    return dict(rreduce(fn=lambda l, _: unpack(lambda k, v: l + [(k, v)])(_),
-                        seq=explode(*ds),
-                        default=[]))
+    return reduce(lambda d, x: dict(d, **x), ds)
 
 
 def assoc(d, k, v):
@@ -61,11 +59,8 @@ def dissoc(d, *ks):
 
 
 def merge_with(fn, *ds):
-    return rreduce(fn=lambda d, x: unpack(lambda k, v:
-                                          assoc(d, k, fn(d[k], v)) if k in d else
-                                          assoc(d, k, v))(x),
-                   seq=explode(*ds),
-                   default={})
+    return reduce(lambda d, x: dict(d, **dict(((k, v) if k not in d else (k, fn(d[k], x[k])) for k, v in x.items()))),
+                  ds)
 
 
 def merge_with_default(fn, default=None, *dicts):

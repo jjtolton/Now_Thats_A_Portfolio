@@ -228,13 +228,12 @@ class DatabaseHandler(logging.Handler):
 
             try:
                 with sm() as session:
-                    log = models.SocLog(**self.format(record))
+                    log = Log(**self.format(record))
                     session.add(log)
                 break
 
             except InternalError:
                 continue
-
 
 
 def get_logger(log_file=None):

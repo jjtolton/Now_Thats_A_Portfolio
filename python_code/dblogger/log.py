@@ -1,16 +1,17 @@
 # coding=utf-8
-"""This logging module does some great formatting, plus if automatically logs everything to a SQL Table :) """
+"""This logging module does some great formatting, plus it automatically logs everything to a SQL Table :) """
 import datetime
 import logging
 import os
 import subprocess
 from logging import handlers
 
+import sqlalchemy as db
 from naga import valmap, compose
 from sqlalchemy.exc import InternalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import sqlalchemy as db
+
 Base = declarative_base()
 
 class Log(Base):

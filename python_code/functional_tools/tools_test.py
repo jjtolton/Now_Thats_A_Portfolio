@@ -72,7 +72,7 @@ class FuncyToolsTest(unittest.TestCase):
         self.assertEqual(expected_res, res)
 
     def test_merge_with_default_sums_or_adds(self):
-        a = self.ds[:1]
+        a = self.ds[0]
 
         expected_res = {1: 4, 3: 8, 4: 10}
         res = merge_with_default(lambda x, y: x + y, 0, *[a, a])

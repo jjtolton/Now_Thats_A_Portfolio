@@ -69,6 +69,10 @@ def merge_with_default(fn, default=None, *dicts):
 
 
 def assoc_in(d, key_list, val):
+    """Note that the behavior of this assoc_in differs from traditional functional 'assoc-in' in that
+    it doesn't replace the value at the end of a keylist if that item is a dictionary, instead it adds
+    that key to the dictionary, which I found to be more useful
+    """
     d1 = keys2dict(val, *key_list)
     return recursive_dict_merge(d, d1)
 

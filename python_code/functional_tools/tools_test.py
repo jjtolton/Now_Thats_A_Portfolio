@@ -106,6 +106,16 @@ class FuncyToolsTest(unittest.TestCase):
         res = assoc_in(d0, 'adfg', [9, 10, 11])
         self.assertEqual(expected_res, res)
 
+    def test_assoc_in_adds_dict_okay(self):
+        d0 = {'a': {'c': [1, 2, 3],
+                    'd': {'e': [4, 5, 6]}}}
+        expected_res = {'a': {'c': [1, 2, 3],
+                              'd': {'e': [4, 5, 6],
+                                    'f': {'1': 2, '3': 'hello'}}}}
+
+        res = assoc_in(d0, ['a', 'd', 'f'], {'1': '2', '3': 'hello'})
+        self.assertEqual(expected_res, res)
+
     def test_update_in_destructively_adds_key_to_path(self):
         _, _, c = self.ds
         initial_d = assoc_in(c, ['thisis'], {'a': dict})

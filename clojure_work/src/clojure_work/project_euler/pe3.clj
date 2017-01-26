@@ -48,3 +48,7 @@
                            (take-while #(< % stopping-point) (gen-primes*)))))))
 
 (time (-main))
+
+(def less-lazy (-> (iterate #(do (print \.) (inc %)) 1)
+                   next next next))
+

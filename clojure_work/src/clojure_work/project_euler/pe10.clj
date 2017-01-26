@@ -19,10 +19,12 @@
                     upto (if (= 0 (mod base 2))
                              (+ 1 base)
                              base)]
-        (loop [x upto]
-          (cond (<= x 2) true
-                   (= 0 (mod n x)) false
-                   :else (recur (- x 2)))))))
+               (loop [x upto]
+                 (cond (<= x 2) true
+                          (= 0 (mod n x)) false
+                          :else (recur (- x 2)))))))
 
 ;; print result
-(time (println (reduce + (take-while #(<= % 2000000) (filter prime? (cons 2 (range 1 2000001 2)))))))
+;(time (println (reduce + (take-while #(<= % 2000000) (filter prime? (cons 2 (range 1 2000001 2)))))))
+
+(time (reduce + (take-while #(<= % (* 2 (Math.pow 10 6) (comp [(partial cons 2) (partial prime?)])(range 1 2000001 2))))))

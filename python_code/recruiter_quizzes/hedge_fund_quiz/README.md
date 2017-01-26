@@ -1,5 +1,5 @@
 # QUIZ:
-
+By the way, got the offer but turned it down because a bank offered more $$$ :)
 ```
 Please provide executable Python 2.7 code to fulfill the requirements of the questions below. For full score, code at least one working solution that requires no imports for each of the questions. You may mention additional shorter solutions that import from the 2.7 stdlib for extra points. 
 

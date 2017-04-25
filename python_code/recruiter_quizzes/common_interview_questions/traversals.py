@@ -1,12 +1,7 @@
-
 class Traverse(object):
-
     @staticmethod
     def level_order(t):
         def _bfs(frontier=None, res=None):
-            frontier = frontier or []
-            res = res or []
-
             if len(frontier[-1:]) == 0:
                 return res
 
@@ -24,9 +19,8 @@ class Traverse(object):
             if t is None:
                 return []
             return df(t['left']) + df(t['right']) + [t['val']]
+
         return df(t)
-
-
 
     @staticmethod
     def preorder(t):
@@ -35,6 +29,7 @@ class Traverse(object):
                 return []
             v = t['val']
             return [v] + pre(t['left']) + pre(t['right'])
+
         return pre(t)
 
     @staticmethod
@@ -52,12 +47,11 @@ class Traverse(object):
             if t is None:
                 return []
             return io(t['left']) + [t['val']] + io(t['right'])
+
         return io(t)
 
 
-
 def tests():
-
     # for visual reference:
     # http://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
     t = {'val': 1,
@@ -71,7 +65,6 @@ def tests():
          'right': {'val': 3,
                    'left': None,
                    'right': None}}
-
 
     fmt = lambda s, v: '{:>30}{}'.format(s, v)
 

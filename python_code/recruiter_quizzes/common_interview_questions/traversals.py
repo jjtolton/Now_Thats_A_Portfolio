@@ -1,7 +1,30 @@
+
+def bst(t=None, v=None):
+    def ts(v, l=None, r=None):
+        return {'val': v,
+                'left': l,
+                'right': r}
+
+    if t is None:
+        return ts(v)
+
+    if v == t['val']:
+        return ts(t['val'], t['left'], t['right'])
+
+    if v < t['val']:
+        return ts(t['val'], bst(t['left'], v), t['right'])
+
+    return ts(t['val'], t['left'], bst(t['right'], v))
+
+
 class Traverse(object):
+
     @staticmethod
     def level_order(t):
         def _bfs(frontier=None, res=None):
+            frontier = frontier or []
+            res = res or []
+
             if len(frontier[-1:]) == 0:
                 return res
 
@@ -19,8 +42,9 @@ class Traverse(object):
             if t is None:
                 return []
             return df(t['left']) + df(t['right']) + [t['val']]
-
         return df(t)
+
+
 
     @staticmethod
     def preorder(t):
@@ -29,7 +53,6 @@ class Traverse(object):
                 return []
             v = t['val']
             return [v] + pre(t['left']) + pre(t['right'])
-
         return pre(t)
 
     @staticmethod
@@ -47,11 +70,12 @@ class Traverse(object):
             if t is None:
                 return []
             return io(t['left']) + [t['val']] + io(t['right'])
-
         return io(t)
 
 
+
 def tests():
+
     # for visual reference:
     # http://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
     t = {'val': 1,
@@ -65,6 +89,7 @@ def tests():
          'right': {'val': 3,
                    'left': None,
                    'right': None}}
+
 
     fmt = lambda s, v: '{:>30}{}'.format(s, v)
 
@@ -82,6 +107,11 @@ def tests():
 
     print(fmt('Depth-first Traversal: ', Traverse.depth_first(t)))
     # [4, 5, 2, 3, 1]
+
+
+
+
+    # print((time.time() - t0) * 1000)
 
 
 if __name__ == '__main__':

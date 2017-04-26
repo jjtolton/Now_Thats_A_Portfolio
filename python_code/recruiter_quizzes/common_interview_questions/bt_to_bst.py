@@ -2,7 +2,7 @@
 import pprint
 
 
-def bst(t=None, v=None):
+def xconj(t=None, v=None):
     def ts(v, l=None, r=None):
         return {'val': v,
                 'left': l,
@@ -15,9 +15,9 @@ def bst(t=None, v=None):
         return ts(t['val'], t['left'], t['right'])
 
     if v < t['val']:
-        return ts(t['val'], bst(t['left'], v), t['right'])
+        return ts(t['val'], xconj(t['left'], v), t['right'])
 
-    return ts(t['val'], t['left'], bst(t['right'], v))
+    return ts(t['val'], t['left'], xconj(t['right'], v))
 
 
 class Traverse(object):
@@ -29,6 +29,27 @@ class Traverse(object):
             return io(t['left']) + [t['val']] + io(t['right'])
 
         return io(t)
+
+
+def bst(vals):
+    if len(vals) == 0:
+        return None
+
+    nodes = sorted(vals)
+    avg = sum(nodes) / float(len(nodes))
+    meanidx = min(range(len(nodes)), key=lambda i: abs(nodes[i] - avg))
+
+    mnode = nodes[meanidx]
+    left = nodes[:meanidx]
+    right = nodes[meanidx + 1:]
+
+    if len(vals) < 3:
+        return reduce(lambda t, v: xconj(t, v), [None, mnode] + left + right)
+
+    else:
+        return {'val': mnode,
+                'left': bst(left),
+                'right': bst(right)}
 
 
 def main():
@@ -45,12 +66,17 @@ def main():
                    'right': None}}
 
     nodes = Traverse.inorder(t)
-    avg = sum(nodes) / float(len(nodes))
-    mean = min(range(len(nodes)), key=lambda i: abs(nodes[i] - avg))
+    tout = bst(nodes)
+    pprint.pprint(tout)
 
-    print("Converting from: \n{}\n".format(pprint.pformat(t)))
-
-    print("Converting to: \n{}\n".format(pprint.pformat(reduce(lambda t, v: bst(t, v), [None] + nodes[mean:] + nodes[:mean]))))
+    # === output ===
+    # {'left': {'left': None,
+    #           'right': {'left': None, 'right': None, 'val': 2},
+    #           'val': 1},
+    #  'right': {'left': None,
+    #            'right': {'left': None, 'right': None, 'val': 5},
+    #            'val': 4},
+    #  'val': 3}
 
 
 if __name__ == '__main__':

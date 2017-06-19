@@ -1,0 +1,1 @@
+{"version":3,"file":"\/home\/jay\/_project\/personal\/demo\/clsj\/qdemo\/snakeq\/resources\/public\/js\/out\/dirac\/project.js","sources":["project.cljs"],"lineCount":9,"mappings":";AAAA;;AAGA,AAAKA,wBAAQ;AAEb,oCAAA,pCAAMC;AAAN,AACED","names":["dirac.project\/version","dirac.project\/get-current-version"]}

@@ -1,5 +1,19 @@
 """
-Problem description
+#############
+# Dev Notes #
+#############
+
+Python Version = 3.6.2
+
+This is an example of the Universal function or "message passing" pattern
+(see Structure and Interpretation of Computer Programs)-- note that it is NOT
+the same as OOP even though it's using classes as universal functions :P
+there's much better builtin support for Python class method operator overloading
+without having to rewrite the "print" function just to support universal functions
+
+#######################
+# Problem description # Source: http://codingdojo.org/kata/TexasHoldEm/
+#######################
 
 You work for a cable network; specifically, you are the resident hacker for a Texas Hold’Em Championship show.
 
@@ -50,11 +64,6 @@ BOB: Hey! Show’s on in ten minutes! Get to work!
 import collections
 from functools import partial, reduce, lru_cache
 
-
-# Note:  This is an example of Universal function or "message passing" pattern -- note that it is NOT
-# the same as OOP even though it's using classes as universal functions :P
-# there's much better builtin support for Python class method operator overloading with having to
-# rewrite the "print" function just to support universal functions
 
 def card(c):
     return Card(c)

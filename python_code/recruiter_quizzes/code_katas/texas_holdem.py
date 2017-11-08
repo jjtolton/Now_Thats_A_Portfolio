@@ -88,6 +88,8 @@ def score(x):
 def suit(x):
     return x.suit()
 
+def suits(x):
+    return x.suits()
 
 def group(x):
     return x.group()
@@ -214,10 +216,14 @@ class Hand:
 
     @lru_cache()
     def flush(self):
-        return len(set(map(suit, self.cards))) == 1
+        ss = {v: k for k, v in collections.Counter(suits(self)).items()}
+        return dict(ss).get(5)
 
     def rank(self):
         return -1 if len(self.cards) < self.handlen else Hand.rules(self)
+
+    def suits(self):
+        return sorted(suit(c) for c in self.cards)
 
     def __repr__(self):
         r = ' '.join(map(repr, self.cards))
@@ -261,6 +267,8 @@ def test():
     sh = "2S 3S 4S 6C 7D".split()  # 7 high
     fold = "2S 3S".split()
 
+    print(flush(convert(sf)))
+
     print(f"sf: {convert(sf)}")
     print(f"fk: {convert(fk)}")
     print(f"fh: {convert(fh)}")
@@ -274,6 +282,17 @@ def test():
     print("\nGame Test\n")
     g1 = sf, fk, fh, s1, s2, fold
     print(Game(map(convert, g1), handlen=5))
+
+
+    print('\nGame Test #2\n')
+    g2 = """  Kc 9s Ks Kd 9d 3c 6d
+  9c Ah Ks Kd 9d 3c 6d
+  Ac Qc Ks Kd 9d 3c
+  9h 5s
+  4d 2d Ks Kd 9d 3c 6d
+  7s Ts Ks Kd 9d
+""".splitlines()
+    print(Game(g2))
 
 
 if __name__ == '__main__':

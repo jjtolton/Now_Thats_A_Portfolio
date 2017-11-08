@@ -88,8 +88,10 @@ def score(x):
 def suit(x):
     return x.suit()
 
+
 def suits(x):
     return x.suits()
+
 
 def group(x):
     return x.group()
@@ -105,6 +107,24 @@ def flush(x):
 
 def straight(x):
     return x.straight()
+
+
+def multisort(iterable, *keys):
+    if len(keys) == 0:
+        return iterable
+    else:
+        key = keys[0]
+        if isinstance(key, tuple):
+            key, cmd = key
+        else:
+            key, cmd = key, ''
+
+        if cmd == 'reverse':
+            reverse = True
+        else:
+            reverse = False
+
+        return multisort(sorted(iterable, key=key, reverse=reverse), *keys[1:])
 
 
 class Card:
@@ -183,7 +203,7 @@ class Hand:
                             3: "Three of a King",
                             2: "Two Pair",
                             1: "Two of a Kind",
-                            -1: "Fold"}
+                            -1: ""}
                            .get(rank(hand),
                                 f"{Card.labels[rank(max(hand.cards, key=score))]} high"))
 
@@ -226,8 +246,21 @@ class Hand:
         return sorted(suit(c) for c in self.cards)
 
     def __repr__(self):
-        r = ' '.join(map(repr, self.cards))
-        return f"{r}: {Hand.labels(self)}"
+
+        suit_count = lambda h, c: list(map(suit, h)).count(suit(c))
+        suit_then_score = lambda x: multisort(x,
+                                              (suit, 'reverse'),
+                                              (partial(suit_count, x), 'reverse'),
+                                              (score, 'reverse'))
+
+        flush_sort = lambda x: multisort(x, (score, 'reverse'), (partial(suit_count, x), 'reverse'))
+
+        scorefns = {8: flush_sort,
+                    5: flush_sort}.get(rank(self),
+                                       suit_then_score)
+
+        r = ' '.join(map(repr, scorefns(self.cards)))
+        return f"{r} {Hand.labels(self)}"
 
     def __lt__(self, other):
         if rank(self) - rank(other) == 0:
@@ -247,7 +280,7 @@ class Game:
 
     def __repr__(self):
         hands = sorted(self.hands, key=rank, reverse=True)
-        tophand = f"{hands[0]} - winner"
+        tophand = f"{hands[0]} (winner)"
         resthands = '\n'.join(f"{h}" for h in hands[1:])
         return f"{tophand}\n{resthands}"
 
@@ -282,7 +315,6 @@ def test():
     print("\nGame Test\n")
     g1 = sf, fk, fh, s1, s2, fold
     print(Game(map(convert, g1), handlen=5))
-
 
     print('\nGame Test #2\n')
     g2 = """  Kc 9s Ks Kd 9d 3c 6d

@@ -200,7 +200,7 @@ class Hand:
                             6: "Full House",
                             5: "Flush",
                             4: "Straight",
-                            3: "Three of a King",
+                            3: "Three of a Kind",
                             2: "Two Pair",
                             1: "Two of a Kind",
                             -1: ""}

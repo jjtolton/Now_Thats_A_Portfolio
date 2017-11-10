@@ -498,7 +498,7 @@ def main():
     # ## return coins to customer
     Vending.return_coins(Events)
 
-    # ## dispense drink
+    # ## sudo dispense drink
     Vending.dispense(Events)
 
     # ## vending when not enough money

@@ -1,4 +1,23 @@
 """
+#############
+# dev notes #
+#############
+
+Python version = 3.6.2
+
+This hilariously overengineered example demonstrates a data driven CQRS "style" "architecture" implemented
+with a universal function message passing pattern.  The state is an aggregation of individual events that occur.
+In a full architecture, the Events deque would be either a persistent DB or perhaps something like Redis or Kafka
+(if you're feeling squirrely) while Vending would absolutely be something like Redis or Kafka.  The State would
+also most likely be a persistent DB of some sort.
+
+Also note the utility functions would be pulled from a seperate library, but I've rewritten them here so you
+don't need any dependencies to run this file.
+
+#######################
+# problem description #
+#######################
+
 https://github.com/guyroyse/vending-machine-kata
 
 Vending Machine Kata
@@ -83,166 +102,36 @@ When the machine is not able to make change with the money in the machine for an
 display EXACT CHANGE ONLY instead of INSERT COIN."""
 import collections
 import copy
+import functools
 import itertools
 import pprint
 import random
 import types
 from functools import reduce
 
-from naga import decorator
-
-Universe = {'coins': [],
-            'client': [],
-            'value': 0}
+########################
+# MESSAGE/EVENT STREAM #
+########################
 
 Events = collections.deque()
 
 
-class Event:
-    __slots__ = ['event', 'attribute', 'value', 'time']
+#########
+# UTILS #
+#########
 
-    def __init__(self, event, attribute, value, time):
-        self.time = time
-        self.value = value
-        self.attribute = attribute
-        self.event = event
+class NamespacedMeta(type):
+    def __init__(cls, o: object, bases, ns):
+        super().__init__(o)
 
-    def __repr__(self):
-        return f"Event([{self.event} {self.attribute} {self.value} {self.time}])"
-
-
-def event(events, e):
-    events.append(e)
-    return events
+        for f, n in cls.__dict__.items():
+            if isinstance(f, types.MethodType):
+                setattr(cls, n, decorator(staticmethod)(f))
 
 
-def update_events(x, *args, **kwargs):
-    return x.update(*args, **kwargs)
-
-
-def handle(x, *args, **kwargs):
-    return x.handle(*args, **kwargs)
-
-
-class Display:
-    sold_out = 'Sold Out'
-    insert_coins = 'Insert Coins'
-    exact_change = 'Exact Change'
-
-    def __init__(self, selection=None):
-        self.selection = selection or self.insert_coins
-
-    def __repr__(self):
-        return f"Display(<{self.selection}>)"
-
-
-class State:
-    sold_out_message = 'Sold Out'
-    display = 'events'
-    beverage = 'beverage'
-    return_ = 'return'
-    add = 'add'
-    machine = 'machine',
-    dispense = 'dispense'
-    coins = 'coins'
-    vend = 'vend'
-
-    def __init__(self, events, initial=None):
-        self.events = events
-        self.initial = self.build_state([], initial)
-
-    def build_state(self, events, initial):
-        initial = initial or {'bank': Bank(),
-                              'customer': Customer(),
-                              'beverage': {drink.name: drink for drink in Beverage.drinks},
-                              'display': Display()}
-
-        s = self
-        for event in events:
-            s = update_events(s, initial, event)
-            initial = s.initial
-
-        return initial
-
-    def dispatch(self, event):
-        d = {'add': Add,
-             'return': Return,
-             'dispense': Dispense,
-             'vend': Vend}[event.event]
-        return d
-
-    def update(self, initial, event):
-        action = self.dispatch(event)(event, initial)
-        return handle(action, event, self)
-
-    def __repr__(self):
-        return f"State({self.initial})"
-
-
-class Action:
-    def __init__(self, event, state):
-        self.event = event
-        self.state = state
-
-    def handle(self, *args, **kwargs):
-        raise NotImplementedError
-
-
-class Add(Action):
-    def handle(self, event, state):
-        res = update_in(state,
-                        ['initial', 'bank', 'holding'],
-                        lambda v, x: v + [x], event.value)
-        return res
-
-
-class Return(Action):
-    def handle(self, event, state):
-        holding_ = ['initial', 'bank', 'holding']
-        holding = get_in(state, holding_)
-        return compose([
-            lambda s: assoc_in(s, holding_, []),
-            lambda s: update_in(s, ['initial', 'customer', 'coins'], lambda x: x + holding)
-        ], state)
-
-
-class Dispense(Action):
-    def handle(self, event, state):
-        holding = 'initial bank holding'.split()
-        coins = 'initial bank coins'.split()
-        selection = 'initial beverages selection'.split()
-        cdrinks = 'initial customer drinks'.split()
-        ccoins = 'initial customer coins'.split()
-        deposit = get_in(state, holding)
-        beverage = get_in(state, selection)
-        cbevs = get_in(state, cdrinks)
-        return compose([
-            lambda s: assoc_in(s, holding, []),
-            lambda s: update_in(s, coins, lambda x, v: x + [v], deposit),
-            lambda s: assoc_in(s, ccoins, list(set(coins) - set(deposit))),
-            lambda s: assoc_in(s, cdrinks, list(set(cbevs) | {beverage}))
-        ], state)
-
-
-class Vend(Action):
+class Namespaced(metaclass=NamespacedMeta):
+    """Inheriting from this will make all methods of the class static methods."""
     pass
-
-
-class Bank:
-    __slots__ = ['coins', 'holding']
-
-    def __init__(self, coins=None, holding=None):
-        self.coins = coins or []
-        self.holding = holding or []
-
-    def __getitem__(self, item):
-        return self.__dict__[item]
-
-    def get(self, x, not_found=None):
-        return getattr(self, x) if hasattr(self, x) else not_found
-
-    def __repr__(self):
-        return f"Bank(coins={self.coins}, holding={self.holding})"
 
 
 def first(coll):
@@ -326,6 +215,63 @@ def assoc_in(coll, keys, v):
         return assoc_in(coll, first(keys), assoc_in(get(coll, first(keys)), rest(keys), v))
 
 
+def decorator(d):
+    "Make function d a decorator: d wraps a function fn."
+
+    def _d(fn):
+        return functools.update_wrapper(d(fn), fn)
+
+    return _d
+
+
+decorator = decorator(decorator)
+
+
+#################
+# UNIVERSAL FNS #
+#################
+
+def event(events, e):
+    events.append(e)
+    return events
+
+
+def update_events(x, *args, **kwargs):
+    return x.update(*args, **kwargs)
+
+
+def handle(x, *args, **kwargs):
+    return x.handle(*args, **kwargs)
+
+
+def value(*x):
+    if len(x) == 1:
+        coin = first(x)
+        return coin.value()
+    return sum(value(coin) for coin in x)
+
+
+#################
+# STATE CLASSES #
+#################
+
+class Bank:
+    __slots__ = ['coins', 'holding']
+
+    def __init__(self, coins=None, holding=None):
+        self.coins = coins or []
+        self.holding = holding or []
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
+
+    def get(self, x, not_found=None):
+        return getattr(self, x) if hasattr(self, x) else not_found
+
+    def __repr__(self):
+        return f"Bank(coins={self.coins}, holding={self.holding})"
+
+
 class Customer:
     __slots__ = ['coins', 'drinks']
 
@@ -348,23 +294,172 @@ class Beverage:
     def __repr__(self):
         return f"Beverage({self.name}, {self.price})"
 
+    def value(self):
+        return self.price
+
 
 Beverage.drinks = {Beverage('coke', 1.0), Beverage('sprite', 1.25)}
 
 
-class NamespacedMeta(type):
-    def __init__(cls, o: object, bases, ns):
-        super().__init__(o)
+class Display:
+    sold_out = 'Sold Out'
+    insert_coins = 'Insert Coins'
+    exact_change = 'Exact Change'
 
-        for f, n in cls.__dict__.items():
-            if isinstance(f, types.MethodType):
-                setattr(cls, n, decorator(staticmethod)(f))
+    def __init__(self, selection=None):
+        self.selection = selection or self.insert_coins
+
+    def __repr__(self):
+        return f"Display(<{self.selection}>)"
 
 
-class Namespaced(metaclass=NamespacedMeta):
-    """Inheriting from this will make all methods of the class static methods."""
-    pass
+class Coin:
+    __slots__ = ['weight', 'size', 'name']
 
+    def __init__(self, name, weight, size):
+        self.size = size
+        self.weight = weight
+        self.name = name
+
+    def __repr__(self):
+        return self.name
+
+    def value(self):
+        return self.weight
+
+
+class State:
+    sold_out_message = 'Sold Out'
+    display = 'events'
+    beverage = 'beverage'
+    return_ = 'return'
+    add = 'add'
+    machine = 'machine',
+    dispense = 'dispense'
+    coins = 'coins'
+    vend = 'vend'
+
+    def __init__(self, events, initial=None):
+        self.events = events
+        self.initial = self.build_state([], initial)
+
+    def build_state(self, events, initial):
+        initial = initial or {'bank': Bank(),
+                              'customer': Customer(),
+                              'beverage': {drink.name: drink for drink in Beverage.drinks},
+                              'display': Display(),
+                              'selection': 'coke'}
+
+        s = self
+        for event in events:
+            s = update_events(s, initial, event)
+            initial = s.initial
+
+        return initial
+
+    def dispatch(self, event):
+        d = {'add': Add,
+             'return': Return,
+             'dispense': Dispense,
+             'vend': Vend}[event.event]
+        return d
+
+    def update(self, initial, event):
+        action = self.dispatch(event)(event, initial)
+        return handle(action, event, self)
+
+    def enough_money(self):
+        coin_value = value(*self.initial['bank'].coins)
+        drink_value = value(self.initial['beverage'][self.initial['selection']])
+        res = coin_value >= drink_value
+        return res
+
+    def __repr__(self):
+        return f"State({self.initial})"
+
+
+#################
+# EVENT CLASSES #
+#################
+
+class Event:
+    __slots__ = ['event', 'attribute', 'value', 'time']
+
+    def __init__(self, event, attribute, value, time):
+        self.time = time
+        self.value = value
+        self.attribute = attribute
+        self.event = event
+
+    def __repr__(self):
+        return f"Event([{self.event} {self.attribute} {self.value} {self.time}])"
+
+
+class Action:
+    def __init__(self, event, state):
+        self.event = event
+        self.state = state
+
+    def handle(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class Add(Action):
+    def handle(self, event, state):
+        res = update_in(state,
+                        ['initial', 'bank', 'coins'],
+                        lambda v, x: v + [x], event.value)
+        return res
+
+
+class Return(Action):
+    def handle(self, event, state):
+        holding_ = ['initial', 'bank', 'coins']
+        holding = get_in(state, holding_)
+        return compose([
+            lambda s: assoc_in(s, holding_, []),
+            lambda s: update_in(s, ['initial', 'customer', 'coins'], lambda x: x + holding)
+        ], state)
+
+
+class Dispense(Action):
+    def handle(self, event, state):
+        holding = 'initial bank holding'.split()
+        coins = 'initial bank coins'.split()
+        selection = 'initial selection'.split()
+        cdrinks = 'initial customer drinks'.split()
+        deposit = get_in(state, holding)
+        beverage = get_in(state, ['initial', 'beverage', get_in(state, selection)])
+        cbevs = get_in(state, cdrinks)
+        return compose([
+            lambda s: assoc_in(s, holding, []),
+            lambda s: update_in(s, coins, lambda x, v: x + v, deposit),
+            lambda s: assoc_in(s, cdrinks, list(set(cbevs) | {beverage}))
+        ], state)
+
+
+class Vend(Action):
+    def handle(self, events, state):
+        holding = 'initial bank holding'.split()
+        coins = 'initial bank coins'.split()
+        selection = 'initial selection'.split()
+        cdrinks = 'initial customer drinks'.split()
+
+        coins_value = get_in(state, coins)
+        bev_sel = get_in(state, ['initial', 'beverage', get_in(state, selection)])
+        if state.enough_money():
+            return compose([
+                lambda s: update_in(s, holding, lambda x, v: x + v, coins_value),
+                lambda s: assoc_in(s, coins, []),
+                lambda s: update_in(s, cdrinks, lambda x, v: x + [v], bev_sel)
+            ], state)
+        else:
+            return state
+
+
+###################
+# MESSAGING CLASS #
+###################
 
 # noinspection PyMethodParameters
 class Vending(Namespaced):
@@ -385,85 +480,42 @@ class Vending(Namespaced):
         return Vending.modify(events, 'dispense', 'beverage', True)
 
     def vend(events):
-        state = State(Vending.modify(events, action=State.vend, attribute=State.machine, value=True))
-        if state.enough_money() and not state.sold_out():
-            return Vending.modify(state.events, action=State.dispense, attribute=State.beverage, value=state.beverage)
-        else:
-            _ = Vending.modify(state.events, action=State.add, attribute=State.display, value=State.sold_out_message)
-            res = Vending.return_coins(events)
-            return res
+        return Vending.modify(events, action=State.vend, attribute=State.machine, value=True)
 
     def select(events, beverage):
         return Vending.modify(events, action='select', attribute='beverage', value=beverage)
 
 
-class Coin:
-    __slots__ = ['weight', 'size', 'name']
-
-    def __init__(self, name, weight, size):
-        self.size = size
-        self.weight = weight
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-
 coins = [Coin('Q', .25, .25), Coin('N', .05, .05)]
 
 
-def test():
+def main():
     choices = coins
-    actions = reduce(lambda x, y: Vending.add_coins(x, y), [random.choice(choices) for _ in range(5)], Events)
-    s = State(actions)
-    pprint.pprint(s.build_state(s.events, s.initial))
 
-    actions2 = Vending.return_coins(actions)
-    print(actions2)
+    # ## add some money
+    reduce(lambda x, y: Vending.add_coins(x, y), [random.choice(choices) for _ in range(5)], Events)
 
-    s2 = State(actions2)
-    print(s2)
-    pprint.pprint(s2.build_state(s2.events, s2.initial))
+    # ## return coins to customer
+    Vending.return_coins(Events)
 
-    actions3 = Vending.dispense(s2.events)
-    s3 = State(actions2)
-    pprint.pprint(s3.build_state(actions3, s3.initial))
+    # ## dispense drink
+    Vending.dispense(Events)
 
+    # ## vending when not enough money
+    Vending.vend(Events)
 
-def test2():
-    class Test:
-        def __init__(self):
-            self.initial = {'cat': 'dog'}
+    # ## add lots more money
+    reduce(lambda x, y: Vending.add_coins(x, y), [random.choice(choices) for _ in range(20)], Events)
 
-        def __repr__(self):
-            return f"{self.initial}"
+    # ## vending when enough money
+    Vending.vend(Events)
 
-    a = {0: {1: [2, 3]}, 1: 2}
-    t = Test()
+    # ## show event log
+    pprint.pprint(Events)
 
-    print(t)
-    print(update_in(t, ['initial', 'cat'], lambda x: update_in(x, [0], lambda x: 'f')))
-    print(update_in(t, ['initial'], lambda x: update_in(x, ['cat'], lambda _: 1)))
-    print(t)
+    # ## build the state from the events
+    pprint.pprint(State(Events).build_state(Events, None))
 
-    print(a)
-    print(update_in(a, [0, 1], lambda x: x + [1]))
-    print(a)
-
-
-def mergesort(coll):
-    if len(coll) == 1:
-        return coll
-    if len(coll) == 2:        return first(mergesort(coll)) + rest(me)
-
-        return [min(coll), max(coll)]
-    else:
-        s = mergesort(coll)
-        a, b = first(s)
-        tail = rest(s)
-
-
-        return [a] + mergesort(b + coll)
 
 if __name__ == '__main__':
-    test()
+    main()

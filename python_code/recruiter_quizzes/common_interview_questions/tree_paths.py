@@ -70,7 +70,7 @@ def path_traverse(t):
 
     left = path_traverse(t['left'])
     right = path_traverse(t['right'])
-    paths = lambda d, t: [] if not t else t['paths'] if 'paths' in t else []
+    paths = lambda d, t=t: [] if not t else t['paths'] if 'paths' in t else []
     lpaths = paths(t['left'])
     rpaths = paths(t['right'])
     return stab(t,

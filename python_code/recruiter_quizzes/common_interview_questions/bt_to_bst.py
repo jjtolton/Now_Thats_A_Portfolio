@@ -1,5 +1,6 @@
 """Convert a binary tree to BST"""
 import pprint
+from functools import reduce
 
 
 def xconj(t=None, v=None):
@@ -52,6 +53,44 @@ def bst(vals):
                 'right': bst(right)}
 
 
+def right(x):
+    return x.right()
+
+
+def left(x):
+    return x.left()
+
+
+def val(x):
+    return x.val()
+
+
+def parent(x):
+    return x.parent()
+
+
+class Node:
+    __slots__ = ['_left', '_right', '_root', '_val']
+
+    def __init__(self, left=None, right=None, parent=None, val=None):
+        self._val = val
+        self._root = parent
+        self._right = right
+        self._left = left
+
+    def right(self):
+        return self._right
+
+    def left(self):
+        return self._left
+
+    def root(self):
+        return self._root
+
+    def val(self):
+        return self._val
+
+
 def main():
     t = {'val': 1,
          'left': {'val': 2,
@@ -67,6 +106,7 @@ def main():
 
     nodes = Traverse.inorder(t)
     tout = bst(nodes)
+    print(nodes)
     pprint.pprint(tout)
 
     # === output ===

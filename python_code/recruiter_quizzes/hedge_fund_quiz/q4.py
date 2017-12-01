@@ -1,3 +1,4 @@
+from naga import mapv
 
 
 def count():
@@ -5,6 +6,7 @@ def count():
     while True:
         yield c
         c += 1
+
 
 def enumerate_bitstrings(n):
     c = count()
@@ -69,7 +71,7 @@ def rule(z, x, y, n):
 
 
 def itercomplements(bitstrings, n):
-    for i in range((2 ** n - 1) / 2):
+    for i in range((2 ** n - 1) // 2):
         bs = next(bitstrings)
         yield bs, (2 ** n) - 1 - bs
 
@@ -77,10 +79,11 @@ def itercomplements(bitstrings, n):
 def bitlist(b):
     return bin(b)[2:]
 
+
 def bitlist_representation(bl, n):
     """Purely for rendering purposes"""
-    return filter(lambda x: x, map(unpack(lambda val, truth: val if truth else None),
-        enumerate(padding(n, bl) + map(int, bitlist(bl)), start=1)))
+    return filter(lambda x: x, mapv(unpack(lambda val, truth: val if truth else None),
+                                   enumerate(padding(n, bl) + mapv(int, bitlist(bl)), start=1)))
 
 
 def main():
@@ -93,8 +96,12 @@ def main():
             print(map(lambda x: set(bitlist_representation(x, n)), item))
 
 
+def test():
+    n = 20
+    items = lambda b: itercomplements(enumerate_bitstrings(n), n)
+    for item in items(n):
+        print(mapv(lambda x: set(bitlist_representation(x, n)), item))
 
 
 if __name__ == '__main__':
-    main()
-
+    test()

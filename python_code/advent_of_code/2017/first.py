@@ -23,14 +23,28 @@ For example:
     1234 produces 0 because no digit matches the next.
     91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
 """
-import itertools
 from functools import reduce
 
 
 def captcha(ints):
-    return reduce(lambda x, y: x + (lambda a, b: b if a == b else 0)(*y),
-                  itertools.chain(((int(a), int(b)) for a, b in zip(str(ints)[:-1], str(ints)[1:])),
-                                  [(int(str(ints)[-1]), int(str(ints)[0]))]), 0)
+    sx = str(ints)
+
+    def pair(ab):
+        return ab[0], ab[1]
+
+    def addif(x, ab):
+        a, b = pair(ab)
+        return x + int(b) if a == b else x
+
+    def pairs():
+        s1 = sx[:-1]
+        s2 = sx[1:]
+        for a, b in zip(s1, s2):
+            yield a, b
+        a, b = sx[-1], sx[0]
+        yield (a, b)
+
+    return reduce(addif, pairs(), 0)
 
 
 def tests():

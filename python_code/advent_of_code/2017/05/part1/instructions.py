@@ -11,8 +11,6 @@ def escape(instructions):
             b += L[a]
             L[a] += 1
             a = b
-
-
         except IndexError:
             return c
 

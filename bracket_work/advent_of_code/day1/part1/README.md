@@ -26,6 +26,7 @@ To run this module, copy `captcha.br` to the directory containing `bracket.py`.
 From there, start there REPL with `python3.6 bracket.py`.
 
 At the prompt,  
+
     $->  [require captcha]
     $->  [captcha/tests]
     test 1: 1122

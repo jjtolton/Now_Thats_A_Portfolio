@@ -108,37 +108,36 @@
 [defn grid-val
    [[n] [grid-val n [coord]]]
    [[n c]
-          [print n]
-          [if [zero? n]
-              [coval c]
-              [grid-val [dec n] [next c]]]]]
+      [if [zero? n]
+          [coval c]
+          [grid-val [dec n] [next c]]]]]
 
 
 [defn tests []
 
-    [print 'test #1: grid 0 -> 1']
+    [print 'test #1: grid 0      -> 1']
     [assert 1 [grid-val 0]]
 
-    [print 'test #2: grid 1 -> 1']
+    [print 'test #2: grid 1      -> 1']
     [assert 1 [grid-val 1]]
 
-    [print 'test #3: grid 2 -> 2']
+    [print 'test #3: grid 2      -> 2']
     [assert 2 [grid-val 2]]
 
-    [print 'test #4: grid 3 -> 4']
+    [print 'test #4: grid 3      -> 4']
     [assert 4 [grid-val 3]]
 
-    [print 'test #5: grid 4 -> 5']
+    [print 'test #5: grid 4      -> 5']
     [assert 5 [grid-val 4]]
 
-    [print 'test #6: grid 5 -> 10']
+    [print 'test #6: grid 5      -> 10']
     [assert 10 [grid-val 5]]
 
-    [print 'test #7: grid 6 -> 11']
+    [print 'test #7: grid 6      -> 11']
     [assert 11 [grid-val 6]]
 
-    [print 'test #8: grid 7 -> 23']
+    [print 'test #8: grid 7      -> 23']
     [assert 23 [grid-val 7]]
 
-    [print 'test #9: grid 312051 -> 312453 (stress test ... takes 3 hours to complete #TODO: fix this)']
+    [print 'test #9: grid 312051 -> 312453 (stress test ... takes over 5 hours to complete #TODO: fix this!!)']
     [assert 312453 [grid-val 312051]]]

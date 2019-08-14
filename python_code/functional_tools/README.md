@@ -1,6 +1,11 @@
+### Deprecated
+
 # functional_tools
 
+
 _An elegant weapon for a more civilized age..._
+
+**Note**:Please check out [`naga`](https://github.com/HiImJayHireMe/naga) for the more recent/complete functional experience.
 
 This folder demonstrates a _purely_ functional approach to Python.  Tackling certain problems, such as recursively
 merging dictionaries, _without_ mutating the original dictionaries, is far more difficult (but far more beautiful) than

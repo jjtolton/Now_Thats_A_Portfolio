@@ -4,8 +4,7 @@ Although I'm a huge cheerleader for Python, Clojure has a few advantages
 for functional programmers that are just impossible to ignore.  From an AI
 perspective, the fact that Clojure (like all LISPs) features homoiconic
 language constructs (the code is _itself_ a form of data) makes it ideal
- for source code introspection and re-writing.  I'm very much a n00b at Clojure
- so these are my dabblings!
+ for source code introspection and re-writing. 
 
 ## Usage
 

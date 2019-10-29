@@ -35,7 +35,7 @@
   "dependencies": {
     "async": "~0.8.0",
     "bigpipe": "bigpipe/pagelet",
-    "express": "4.2.x",
+    "express": "4.17.x",
     "plates": "https://github.com/flatiron/plates/tarball/master",
     "primus": "*",
     "react-dom": "^15.5.4",
